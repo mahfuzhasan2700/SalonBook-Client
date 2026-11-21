@@ -197,7 +197,7 @@ function BrowseServicesContent() {
                 <button
                   key={range.label}
                   onClick={() => setSelectedPriceRange(index)}
-                  className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                  className={`filter-pill px-3 py-1.5 rounded-lg font-semibold ${
                     selectedPriceRange === index
                       ? 'bg-white dark:bg-[#241E23] text-[#80405A] dark:text-[#E2A5BA] shadow-sm border border-[#EAE3DB] dark:border-[#382E36]'
                       : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
@@ -246,10 +246,10 @@ function BrowseServicesContent() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  className={`filter-pill px-4 py-2.5 rounded-xl text-xs font-semibold ${
                     isSelected
-                      ? 'bg-[#80405A] dark:bg-[#E2A5BA] text-white dark:text-[#24171D] shadow-md'
-                      : 'bg-[#FAF7F3] dark:bg-[#171316] text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED] border border-[#EAE3DB] dark:border-[#382E36]'
+                      ? 'bg-[#80405A] dark:bg-[#E2A5BA] text-white dark:text-[#24171D] shadow-md shadow-[#80405A]/25 dark:shadow-[#E2A5BA]/25'
+                      : 'bg-[#FAF7F3] dark:bg-[#171316] text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED] border border-[#EAE3DB] dark:border-[#382E36] hover:border-[#80405A]/40 dark:hover:border-[#E2A5BA]/40'
                   }`}
                 >
                   {cat}

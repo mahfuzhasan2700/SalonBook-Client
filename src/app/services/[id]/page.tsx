@@ -312,33 +312,42 @@ export default function ServiceDetailsPage() {
           <div className="border-b border-[#EAE3DB] dark:border-[#382E36] flex space-x-8 text-sm font-semibold">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`pb-3 transition-colors ${
+              className={`pb-3 text-sm font-bold transition-all relative ${
                 activeTab === 'overview'
-                  ? 'border-b-2 border-[#80405A] dark:border-[#E2A5BA] text-[#80405A] dark:text-[#E2A5BA] font-bold'
+                  ? 'text-[#80405A] dark:text-[#E2A5BA]'
                   : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
               }`}
             >
               Treatment Overview
+              {activeTab === 'overview' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#80405A] dark:bg-[#E2A5BA] rounded-full animate-in fade-in duration-200" />
+              )}
             </button>
             <button
               onClick={() => setActiveTab('inclusions')}
-              className={`pb-3 transition-colors ${
+              className={`pb-3 text-sm font-bold transition-all relative ${
                 activeTab === 'inclusions'
-                  ? 'border-b-2 border-[#80405A] dark:border-[#E2A5BA] text-[#80405A] dark:text-[#E2A5BA] font-bold'
+                  ? 'text-[#80405A] dark:text-[#E2A5BA]'
                   : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
               }`}
             >
               What's Included
+              {activeTab === 'inclusions' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#80405A] dark:border-[#E2A5BA] bg-[#80405A] dark:bg-[#E2A5BA] rounded-full animate-in fade-in duration-200" />
+              )}
             </button>
             <button
               onClick={() => setActiveTab('policy')}
-              className={`pb-3 transition-colors ${
+              className={`pb-3 text-sm font-bold transition-all relative ${
                 activeTab === 'policy'
-                  ? 'border-b-2 border-[#80405A] dark:border-[#E2A5BA] text-[#80405A] dark:text-[#E2A5BA] font-bold'
+                  ? 'text-[#80405A] dark:text-[#E2A5BA]'
                   : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
               }`}
             >
               Cancellation & Standards
+              {activeTab === 'policy' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#80405A] dark:bg-[#E2A5BA] rounded-full animate-in fade-in duration-200" />
+              )}
             </button>
           </div>
 
@@ -477,9 +486,9 @@ export default function ServiceDetailsPage() {
                         key={slot}
                         disabled={isInactive || isAdmin}
                         onClick={() => setTimeSlot(slot)}
-                        className={`py-2 px-2.5 text-xs font-semibold rounded-xl border transition-all text-center ${
+                        className={`filter-pill py-2.5 px-2.5 text-xs font-semibold rounded-xl border text-center ${
                           isSelected
-                            ? 'border-[#80405A] bg-[#80405A]/10 text-[#80405A] dark:border-[#E2A5BA] dark:bg-[#E2A5BA]/20 dark:text-[#E2A5BA] shadow-sm'
+                            ? 'border-[#80405A] bg-[#80405A] text-white dark:border-[#E2A5BA] dark:bg-[#E2A5BA] dark:text-[#24171D] shadow-md shadow-[#80405A]/30'
                             : 'border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] text-[#675961] dark:text-[#C8B8C0] hover:border-[#80405A]/40 dark:hover:border-[#E2A5BA]/40 disabled:opacity-50'
                         }`}
                       >
@@ -542,9 +551,9 @@ export default function ServiceDetailsPage() {
                   <button
                     type="submit"
                     disabled={isSubmittingBooking}
-                    className="w-full py-3.5 px-4 rounded-xl text-sm font-semibold text-white bg-[#80405A] hover:bg-[#6c364c] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d893aa] shadow-md transition-all flex items-center justify-center space-x-2 disabled:opacity-50 transform hover:-translate-y-0.5"
+                    className="btn-emphasis-primary group w-full py-4 px-6 rounded-2xl text-sm font-bold uppercase tracking-wider text-white bg-[#80405A] hover:bg-[#6c364c] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d893aa] shadow-xl flex items-center justify-center space-x-2.5 disabled:opacity-50 transition-all duration-200"
                   >
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                     <span>{isSubmittingBooking ? 'Submitting Request...' : 'Confirm Appointment Request'}</span>
                   </button>
                 )}

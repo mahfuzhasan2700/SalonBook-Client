@@ -119,10 +119,10 @@ export default function HomePage() {
               <div className="pt-2">
                 <Link
                   href="/services"
-                  className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 px-8 py-4 rounded-full text-sm font-semibold text-white bg-[#80405A] hover:bg-[#6a3449] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d88ea6] shadow-md transition-all duration-180 transform hover:-translate-y-0.5"
+                  className="btn-emphasis-primary group w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-8 py-4 rounded-full text-sm font-bold tracking-wide uppercase text-white bg-[#80405A] hover:bg-[#6c364c] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d893aa] shadow-lg transition-all duration-200"
                 >
                   <span>Explore Salon Services</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200" />
                 </Link>
               </div>
 
@@ -242,17 +242,17 @@ export default function HomePage() {
                 <Link
                   key={cat.name}
                   href={`/services?category=${encodeURIComponent(cat.name)}`}
-                  className="category-card group bg-white dark:bg-[#171316] rounded-3xl overflow-hidden border border-[#EAE3DB] dark:border-[#382E36] shadow-sm hover:shadow-xl hover:border-[#80405A]/40 dark:hover:border-[#E2A5BA]/40 transition-all duration-200 flex flex-col justify-between"
+                  className="category-card group card-hover-lift bg-white dark:bg-[#171316] rounded-3xl overflow-hidden border border-[#EAE3DB] dark:border-[#382E36] hover:border-[#80405A]/50 dark:hover:border-[#E2A5BA]/50 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div className="aspect-[4/3] overflow-hidden relative bg-stone-100 dark:bg-stone-900">
                     <img
                       src={cat.image}
                       alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
                     <div className="absolute bottom-3.5 left-3.5 text-white flex items-center space-x-2">
-                      <div className="category-icon-hover w-8 h-8 rounded-full bg-[#80405A]/85 dark:bg-[#E2A5BA]/90 text-white dark:text-[#24171D] flex items-center justify-center shadow-sm">
+                      <div className="category-icon-hover w-9 h-9 rounded-full bg-[#80405A] dark:bg-[#E2A5BA] text-white dark:text-[#24171D] flex items-center justify-center shadow-md">
                         <Icon className="w-4 h-4" />
                       </div>
                       <h3 className="font-serif font-bold text-lg leading-snug">{cat.name}</h3>
@@ -263,7 +263,7 @@ export default function HomePage() {
                     <p className="text-xs text-[#675961] dark:text-[#C8B8C0] line-clamp-2 leading-relaxed">
                       {cat.description}
                     </p>
-                    <div className="mt-3 text-xs font-semibold text-[#80405A] dark:text-[#E2A5BA] flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                    <div className="mt-3 text-xs font-bold text-[#80405A] dark:text-[#E2A5BA] flex items-center space-x-1.5 group-hover:translate-x-1.5 transition-transform duration-200">
                       <span>Explore rituals</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>
