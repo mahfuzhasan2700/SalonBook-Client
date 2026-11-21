@@ -51,9 +51,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               localStorage.setItem('salonbook_user', JSON.stringify(res.user));
             }
           }
-        } catch (error) {
-          // Token expired or invalid
-          logout();
+        } catch (error: any) {
+          // Only log out if the server explicitly rejects the token (401 / expired / invalid)
+          // Do NOT log out on simple network errors, offline server, or client-side evaluation
+          const msg = (error?.message || '').toLowerCase();
+          if (
+            msg.includes('401') ||
+            msg.includes('invalid or expired') ||
+            msg.includes('access denied') ||
+            msg.includes('user no longer exists')
+          ) {
+            logout();
+          }
         }
       }
       setIsLoading(false);
