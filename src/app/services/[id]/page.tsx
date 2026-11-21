@@ -73,6 +73,9 @@ export default function ServiceDetailsPage() {
         const res = await apiFetch(`/services/${id}`);
         if (res.success && res.service) {
           setService(res.service);
+          if (typeof window !== 'undefined' && id) {
+            localStorage.setItem('salonbook_last_viewed_service', String(id));
+          }
 
           // Fetch related services in the same category
           try {
