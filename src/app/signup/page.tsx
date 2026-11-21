@@ -79,20 +79,7 @@ export default function SignUpPage() {
         return;
       }
     } catch (error: any) {
-      // Resilient fallback: if backend/network is unreachable, create customer session so user is never blocked
-      const newCustomer = {
-        _id: 'cust_registered_' + Date.now(),
-        name: name.trim(),
-        email: email.trim(),
-        phone: phone.trim() || '+1 (555) 000-0000',
-        role: 'customer' as const,
-        isBlocked: false,
-        image: imageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      };
-      const mockToken = 'mock_jwt_customer_' + Date.now();
-      toast.success('Registration successful! Welcome to SalonBook.');
-      login(mockToken, newCustomer);
-      router.push('/dashboard/customer');
+      toast.error(error.message || 'Registration failed. Please check your details.');
     } finally {
       setIsSubmitting(false);
     }

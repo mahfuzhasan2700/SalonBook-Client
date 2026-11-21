@@ -76,17 +76,17 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-rose-100 animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-[#241E23] rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#EAE3DB] dark:border-[#382E36] animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="p-6 salon-gradient text-white flex justify-between items-start">
+        <div className="p-6 bg-[#80405A] dark:bg-[#2B2027] text-white flex justify-between items-start border-b border-[#EAE3DB]/20">
           <div>
-            <span className="text-xs uppercase font-semibold tracking-wider text-rose-200">
+            <span className="text-xs uppercase font-bold tracking-wider text-[#E2A5BA]">
               Schedule Appointment
             </span>
             <h3 className="text-xl font-serif font-bold text-white mt-1">
               {service.serviceName}
             </h3>
-            <p className="text-xs text-rose-100 mt-0.5">
+            <p className="text-xs text-white/80 mt-0.5">
               ${service.price} • {service.duration} mins session
             </p>
           </div>
@@ -102,8 +102,8 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {/* Appointment Date */}
           <div>
-            <label className="flex items-center space-x-2 text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-              <Calendar className="w-4 h-4 text-primary-600" />
+            <label className="flex items-center space-x-2 text-xs font-bold text-[#291F26] dark:text-[#F8F1ED] uppercase tracking-wider mb-2 font-sans">
+              <Calendar className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
               <span>Select Date *</span>
             </label>
             <input
@@ -112,14 +112,14 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
               value={appointmentDate}
               onChange={(e) => setAppointmentDate(e.target.value)}
               required
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 text-sm text-gray-800 outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] focus:border-[#80405A] dark:focus:border-[#E2A5BA] focus:ring-2 focus:ring-[#80405A]/20 text-sm text-[#291F26] dark:text-[#F8F1ED] outline-none transition-all"
             />
           </div>
 
           {/* Time Slot Picker */}
           <div>
-            <label className="flex items-center space-x-2 text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-              <Clock className="w-4 h-4 text-primary-600" />
+            <label className="flex items-center space-x-2 text-xs font-bold text-[#291F26] dark:text-[#F8F1ED] uppercase tracking-wider mb-2 font-sans">
+              <Clock className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
               <span>Choose Available Time Slot *</span>
             </label>
             <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
@@ -130,10 +130,10 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
                     type="button"
                     key={slot}
                     onClick={() => setTimeSlot(slot)}
-                    className={`py-2 px-3 text-xs font-medium rounded-xl border transition-all text-center ${
+                    className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all text-center ${
                       isSelected
-                        ? 'border-primary-600 bg-primary-50 text-primary-800 font-semibold shadow-sm'
-                        : 'border-gray-200 text-gray-700 hover:border-rose-200 hover:bg-rose-50/50'
+                        ? 'border-[#80405A] bg-[#80405A] text-white dark:border-[#E2A5BA] dark:bg-[#E2A5BA] dark:text-[#24171D] shadow-sm'
+                        : 'border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] text-[#675961] dark:text-[#C8B8C0] hover:border-[#80405A]/40 dark:hover:border-[#E2A5BA]/40'
                     }`}
                   >
                     {slot}
@@ -145,8 +145,8 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
 
           {/* Additional Notes / Message */}
           <div>
-            <label className="flex items-center space-x-2 text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-              <MessageSquare className="w-4 h-4 text-primary-600" />
+            <label className="flex items-center space-x-2 text-xs font-bold text-[#291F26] dark:text-[#F8F1ED] uppercase tracking-wider mb-2 font-sans">
+              <MessageSquare className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
               <span>Special Requests or Notes (Optional)</span>
             </label>
             <textarea
@@ -154,13 +154,13 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Any styling preferences, hair length, allergies or skin sensitivities..."
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 text-sm text-gray-800 outline-none transition-all resize-none"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] focus:border-[#80405A] dark:focus:border-[#E2A5BA] focus:ring-2 focus:ring-[#80405A]/20 text-sm text-[#291F26] dark:text-[#F8F1ED] outline-none transition-all resize-none"
             />
           </div>
 
           {/* Security & Policy note */}
-          <div className="flex items-start space-x-2.5 bg-rose-50/60 p-3 rounded-xl border border-rose-100 text-xs text-rose-900">
-            <ShieldCheck className="w-4 h-4 text-primary-600 shrink-0 mt-0.5" />
+          <div className="flex items-start space-x-2.5 bg-[#FAF7F3] dark:bg-[#171316] p-3.5 rounded-2xl border border-[#EAE3DB] dark:border-[#382E36] text-xs text-[#675961] dark:text-[#C8B8C0]">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <span>
               Your request will be submitted as <strong>Pending</strong>. Once reviewed and confirmed by our salon manager, you can complete payment safely via Stripe.
             </span>
@@ -171,14 +171,14 @@ export default function BookingModal({ service, isOpen, onClose }: BookingModalP
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-100 border border-gray-200 transition-colors"
+              className="flex-1 py-3 px-4 rounded-xl text-xs font-semibold text-[#675961] dark:text-[#C8B8C0] hover:bg-stone-100 dark:hover:bg-[#171316] border border-[#EAE3DB] dark:border-[#382E36] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-4 rounded-xl text-sm font-semibold text-white salon-gradient hover:opacity-95 shadow-md shadow-rose-900/15 transition-all disabled:opacity-50"
+              className="btn-emphasis-primary flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-[#80405A] hover:bg-[#6c364c] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d893aa] shadow-md transition-all disabled:opacity-50"
             >
               {isSubmitting ? 'Submitting...' : 'Request Appointment'}
             </button>

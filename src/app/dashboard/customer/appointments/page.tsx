@@ -15,6 +15,7 @@ import {
   CheckCircle,
   Info,
   ExternalLink,
+  X,
 } from 'lucide-react';
 
 export default function MyAppointmentsPage() {
@@ -89,13 +90,13 @@ export default function MyAppointmentsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <span className="text-xs uppercase font-bold tracking-wider text-primary-700">
+        <span className="text-xs uppercase font-bold tracking-wider text-[#80405A] dark:text-[#E2A5BA]">
           Booking History
         </span>
-        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
           My Appointments
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[#675961] dark:text-[#C8B8C0]">
           Manage your salon schedules, cancel pending requests, and complete Stripe payments for confirmed bookings.
         </p>
       </div>
@@ -108,11 +109,11 @@ export default function MyAppointmentsPage() {
           actionHref="/services"
         />
       ) : (
-        <div className="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#241E23] rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm overflow-hidden">
           {/* Desktop Table View */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-rose-50/70 border-b border-rose-100 text-xs font-bold uppercase tracking-wider text-gray-600">
+              <thead className="bg-[#FAF7F3] dark:bg-[#1d171b] border-b border-[#EAE3DB] dark:border-[#382E36] text-xs font-bold uppercase tracking-wider text-[#675961] dark:text-[#C8B8C0]">
                 <tr>
                   <th className="py-4 px-6">Service</th>
                   <th className="py-4 px-6">Date & Slot</th>
@@ -122,28 +123,28 @@ export default function MyAppointmentsPage() {
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-gray-700">
+              <tbody className="divide-y divide-[#EAE3DB] dark:divide-[#382E36] text-[#291F26] dark:text-[#F8F1ED]">
                 {appointments.map((app) => {
                   const isPending = app.status === 'pending';
                   const isConfirmed = app.status === 'confirmed';
                   const isUnpaid = app.paymentStatus === 'unpaid';
 
                   return (
-                    <tr key={app._id} className="hover:bg-rose-50/30 transition-colors">
+                    <tr key={app._id} className="hover:bg-[#FAF7F3]/60 dark:hover:bg-[#1d171b]/60 transition-colors">
                       {/* Service column */}
                       <td className="py-4 px-6">
                         <div className="flex items-center space-x-3.5">
                           <img
-                            src={app.serviceId?.image || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=300&q=80'}
-                            alt={app.serviceId?.serviceName || 'Service'}
-                            className="w-12 h-12 rounded-xl object-cover border border-rose-100 shrink-0"
+                            src={app.serviceId?.image || app.serviceImage || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=300&q=80'}
+                            alt={app.serviceId?.serviceName || app.serviceName || 'Service'}
+                            className="w-12 h-12 rounded-xl object-cover border border-[#EAE3DB] dark:border-[#382E36] shrink-0"
                           />
                           <div>
-                            <p className="font-bold text-gray-900 text-sm">
-                              {app.serviceId?.serviceName || 'Salon Service'}
+                            <p className="font-bold text-[#291F26] dark:text-[#F8F1ED] text-sm">
+                              {app.serviceId?.serviceName || app.serviceName || 'Salon Service'}
                             </p>
-                            <span className="text-xs text-primary-700 font-medium">
-                              {app.serviceId?.category || 'General'}
+                            <span className="text-xs text-[#80405A] dark:text-[#E2A5BA] font-semibold">
+                              {app.serviceId?.category || app.serviceCategory || 'General'}
                             </span>
                           </div>
                         </div>
@@ -151,13 +152,13 @@ export default function MyAppointmentsPage() {
 
                       {/* Date & Slot */}
                       <td className="py-4 px-6">
-                        <p className="font-semibold text-gray-900">{app.appointmentDate}</p>
-                        <p className="text-xs text-gray-500">{app.timeSlot}</p>
+                        <p className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">{app.appointmentDate}</p>
+                        <p className="text-xs text-[#675961] dark:text-[#C8B8C0]">{app.timeSlot}</p>
                       </td>
 
                       {/* Price */}
                       <td className="py-4 px-6">
-                        <span className="font-bold text-gray-900">${app.servicePrice}</span>
+                        <span className="font-bold text-[#291F26] dark:text-[#F8F1ED]">${app.servicePrice}</span>
                       </td>
 
                       {/* Appointment Status */}
@@ -165,10 +166,10 @@ export default function MyAppointmentsPage() {
                         <span
                           className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                             app.status === 'confirmed'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                               : app.status === 'pending'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-gray-100 text-gray-600 border border-gray-200'
+                              ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                              : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
                           }`}
                         >
                           {app.status}
@@ -180,8 +181,8 @@ export default function MyAppointmentsPage() {
                         <span
                           className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                             app.paymentStatus === 'paid'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-rose-50 text-primary-700 border border-rose-200'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] border border-[#80405A]/20 dark:border-[#E2A5BA]/30'
                           }`}
                         >
                           {app.paymentStatus}
@@ -193,7 +194,7 @@ export default function MyAppointmentsPage() {
                         {/* View Details */}
                         <button
                           onClick={() => setSelectedAppointment(app)}
-                          className="p-1.5 rounded-lg text-gray-500 hover:text-primary-700 hover:bg-rose-50 transition-colors"
+                          className="p-1.5 rounded-lg text-[#675961] dark:text-[#C8B8C0] hover:text-[#80405A] dark:hover:text-[#E2A5BA] hover:bg-stone-100 dark:hover:bg-[#171316] transition-colors"
                           title="View Details"
                         >
                           <Info className="w-4 h-4" />
@@ -215,7 +216,7 @@ export default function MyAppointmentsPage() {
                         {isPending && (
                           <button
                             onClick={() => handleCancel(app._id)}
-                            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition-colors"
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/50 transition-colors"
                           >
                             <XCircle className="w-3.5 h-3.5" />
                             <span>Cancel</span>
@@ -230,7 +231,7 @@ export default function MyAppointmentsPage() {
           </div>
 
           {/* Mobile Card List View */}
-          <div className="lg:hidden divide-y divide-gray-100 p-4 space-y-4">
+          <div className="lg:hidden divide-y divide-[#EAE3DB] dark:divide-[#382E36] p-4 space-y-4">
             {appointments.map((app) => {
               const isPending = app.status === 'pending';
               const isConfirmed = app.status === 'confirmed';
@@ -240,34 +241,34 @@ export default function MyAppointmentsPage() {
                 <div key={app._id} className="pt-4 first:pt-0 space-y-3">
                   <div className="flex items-center space-x-3">
                     <img
-                      src={app.serviceId?.image || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=300&q=80'}
-                      alt={app.serviceId?.serviceName || 'Service'}
-                      className="w-14 h-14 rounded-2xl object-cover shrink-0 border border-rose-100"
+                      src={app.serviceId?.image || app.serviceImage || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=300&q=80'}
+                      alt={app.serviceId?.serviceName || app.serviceName || 'Service'}
+                      className="w-14 h-14 rounded-2xl object-cover shrink-0 border border-[#EAE3DB] dark:border-[#382E36]"
                     />
                     <div>
-                      <h4 className="text-sm font-bold text-gray-900">
-                        {app.serviceId?.serviceName || 'Salon Service'}
+                      <h4 className="text-sm font-bold text-[#291F26] dark:text-[#F8F1ED]">
+                        {app.serviceId?.serviceName || app.serviceName || 'Salon Service'}
                       </h4>
-                      <p className="text-xs text-primary-700 font-medium">
-                        {app.serviceId?.category}
+                      <p className="text-xs text-[#80405A] dark:text-[#E2A5BA] font-semibold">
+                        {app.serviceId?.category || app.serviceCategory || 'Salon Ritual'}
                       </p>
-                      <p className="text-xs font-bold text-gray-900 mt-0.5">
+                      <p className="text-xs font-bold text-[#291F26] dark:text-[#F8F1ED] mt-0.5">
                         ${app.servicePrice}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex justify-between text-xs text-gray-600 bg-rose-50/50 p-2.5 rounded-xl">
+                  <div className="flex justify-between text-xs text-[#675961] dark:text-[#C8B8C0] bg-[#FAF7F3] dark:bg-[#171316] p-2.5 rounded-xl border border-[#EAE3DB] dark:border-[#382E36]">
                     <span>📅 {app.appointmentDate}</span>
                     <span>⏰ {app.timeSlot}</span>
                   </div>
 
                   <div className="flex items-center justify-between pt-1">
                     <div className="flex space-x-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-gray-100 text-gray-700">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
                         {app.status}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-rose-50 text-primary-700">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA]">
                         {app.paymentStatus}
                       </span>
                     </div>
@@ -276,7 +277,7 @@ export default function MyAppointmentsPage() {
                       {isConfirmed && isUnpaid && (
                         <button
                           onClick={() => handlePayNow(app._id)}
-                          className="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600"
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm"
                         >
                           Pay Now
                         </button>
@@ -284,7 +285,7 @@ export default function MyAppointmentsPage() {
                       {isPending && (
                         <button
                           onClick={() => handleCancel(app._id)}
-                          className="px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 border border-red-200"
+                          className="px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/50"
                         >
                           Cancel
                         </button>
@@ -300,54 +301,54 @@ export default function MyAppointmentsPage() {
 
       {/* Appointment Detail Modal */}
       {selectedAppointment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 border border-rose-100 shadow-2xl">
-            <div className="flex justify-between items-start border-b border-gray-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-[#241E23] rounded-3xl max-w-md w-full p-6 space-y-4 border border-[#EAE3DB] dark:border-[#382E36] shadow-2xl text-[#291F26] dark:text-[#F8F1ED]">
+            <div className="flex justify-between items-start border-b border-[#EAE3DB] dark:border-[#382E36] pb-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary-700">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#80405A] dark:text-[#E2A5BA]">
                   Appointment Details
                 </span>
-                <h3 className="text-lg font-serif font-bold text-gray-900">
-                  {selectedAppointment.serviceId?.serviceName}
+                <h3 className="text-lg font-serif font-bold text-[#291F26] dark:text-[#F8F1ED]">
+                  {selectedAppointment.serviceId?.serviceName || selectedAppointment.serviceName}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedAppointment(null)}
-                className="text-gray-400 hover:text-gray-600 p-1"
+                className="text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED] p-1"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-2.5 text-xs text-gray-600">
-              <div className="flex justify-between py-1 border-b border-gray-50">
-                <span className="text-gray-400">Category:</span>
-                <span className="font-semibold text-gray-900">{selectedAppointment.serviceId?.category}</span>
+            <div className="space-y-2.5 text-xs text-[#675961] dark:text-[#C8B8C0]">
+              <div className="flex justify-between py-1 border-b border-[#EAE3DB]/40 dark:border-[#382E36]/40">
+                <span className="text-[#675961] dark:text-[#C8B8C0]">Category:</span>
+                <span className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">{selectedAppointment.serviceId?.category || selectedAppointment.serviceCategory}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-50">
-                <span className="text-gray-400">Scheduled Date:</span>
-                <span className="font-semibold text-gray-900">{selectedAppointment.appointmentDate}</span>
+              <div className="flex justify-between py-1 border-b border-[#EAE3DB]/40 dark:border-[#382E36]/40">
+                <span className="text-[#675961] dark:text-[#C8B8C0]">Scheduled Date:</span>
+                <span className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">{selectedAppointment.appointmentDate}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-50">
-                <span className="text-gray-400">Time Window:</span>
-                <span className="font-semibold text-gray-900">{selectedAppointment.timeSlot}</span>
+              <div className="flex justify-between py-1 border-b border-[#EAE3DB]/40 dark:border-[#382E36]/40">
+                <span className="text-[#675961] dark:text-[#C8B8C0]">Time Window:</span>
+                <span className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">{selectedAppointment.timeSlot}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-50">
-                <span className="text-gray-400">Service Fee:</span>
-                <span className="font-semibold text-gray-900">${selectedAppointment.servicePrice}</span>
+              <div className="flex justify-between py-1 border-b border-[#EAE3DB]/40 dark:border-[#382E36]/40">
+                <span className="text-[#675961] dark:text-[#C8B8C0]">Service Fee:</span>
+                <span className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">${selectedAppointment.servicePrice}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-50">
-                <span className="text-gray-400">Booking Status:</span>
-                <span className="font-bold uppercase text-primary-700">{selectedAppointment.status}</span>
+              <div className="flex justify-between py-1 border-b border-[#EAE3DB]/40 dark:border-[#382E36]/40">
+                <span className="text-[#675961] dark:text-[#C8B8C0]">Booking Status:</span>
+                <span className="font-bold uppercase text-[#80405A] dark:text-[#E2A5BA]">{selectedAppointment.status}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-50">
-                <span className="text-gray-400">Payment Status:</span>
-                <span className="font-bold uppercase text-emerald-600">{selectedAppointment.paymentStatus}</span>
+              <div className="flex justify-between py-1 border-b border-[#EAE3DB]/40 dark:border-[#382E36]/40">
+                <span className="text-[#675961] dark:text-[#C8B8C0]">Payment Status:</span>
+                <span className="font-bold uppercase text-emerald-600 dark:text-emerald-400">{selectedAppointment.paymentStatus}</span>
               </div>
               {selectedAppointment.message && (
                 <div className="pt-2">
-                  <span className="text-gray-400 block mb-1">Your Special Note:</span>
-                  <p className="bg-rose-50/60 p-2.5 rounded-xl text-gray-700 italic">
+                  <span className="text-[#675961] dark:text-[#C8B8C0] block mb-1">Your Special Note:</span>
+                  <p className="bg-[#FAF7F3] dark:bg-[#171316] p-2.5 rounded-xl text-[#291F26] dark:text-[#F8F1ED] italic border border-[#EAE3DB] dark:border-[#382E36]">
                     "{selectedAppointment.message}"
                   </p>
                 </div>
@@ -356,7 +357,7 @@ export default function MyAppointmentsPage() {
 
             <button
               onClick={() => setSelectedAppointment(null)}
-              className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold text-xs hover:bg-gray-200 transition-colors"
+              className="w-full py-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-[#291F26] dark:text-[#F8F1ED] font-semibold text-xs hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
               Close
             </button>

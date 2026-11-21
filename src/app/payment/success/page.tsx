@@ -43,41 +43,41 @@ function PaymentSuccessContent() {
   }
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center py-16 px-4">
-      <div className="max-w-md w-full bg-white rounded-3xl border border-rose-100 shadow-xl p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
-        <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto ring-8 ring-emerald-50">
+    <div className="min-h-[75vh] flex items-center justify-center py-16 px-4 bg-[#FAF7F3] dark:bg-[#171316] transition-colors">
+      <div className="max-w-md w-full bg-white dark:bg-[#241E23] rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-xl p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto ring-8 ring-emerald-50 dark:ring-emerald-950/30">
           <CheckCircle2 className="w-10 h-10" />
         </div>
 
         <div>
-          <span className="text-xs uppercase font-bold tracking-wider text-emerald-700">
+          <span className="text-xs uppercase font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
             Payment Completed
           </span>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
             Appointment Confirmed!
           </h1>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-[#675961] dark:text-[#C8B8C0] mt-2">
             Your appointment has been securely paid and locked into our salon calendar.
           </p>
         </div>
 
         {appointment && (
-          <div className="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 text-left text-xs space-y-2">
+          <div className="bg-[#FAF7F3] dark:bg-[#171316] p-4 rounded-2xl border border-[#EAE3DB] dark:border-[#382E36] text-left text-xs space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-500">Service:</span>
-              <span className="font-bold text-gray-900">{appointment.serviceId?.serviceName}</span>
+              <span className="text-[#675961] dark:text-[#C8B8C0]">Service:</span>
+              <span className="font-bold text-[#291F26] dark:text-[#F8F1ED]">{appointment.serviceId?.serviceName || appointment.serviceName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Scheduled Date:</span>
-              <span className="font-semibold text-gray-900">{appointment.appointmentDate}</span>
+              <span className="text-[#675961] dark:text-[#C8B8C0]">Scheduled Date:</span>
+              <span className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">{appointment.appointmentDate}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Time Slot:</span>
-              <span className="font-semibold text-gray-900">{appointment.timeSlot}</span>
+              <span className="text-[#675961] dark:text-[#C8B8C0]">Time Slot:</span>
+              <span className="font-semibold text-[#291F26] dark:text-[#F8F1ED]">{appointment.timeSlot}</span>
             </div>
-            <div className="flex justify-between border-t border-rose-100 pt-1">
-              <span className="text-gray-500">Amount Paid:</span>
-              <span className="font-bold text-emerald-700">${appointment.servicePrice}</span>
+            <div className="flex justify-between border-t border-[#EAE3DB] dark:border-[#382E36] pt-1">
+              <span className="text-[#675961] dark:text-[#C8B8C0]">Amount Paid:</span>
+              <span className="font-bold text-emerald-700 dark:text-emerald-400">${appointment.servicePrice}</span>
             </div>
           </div>
         )}
@@ -85,7 +85,7 @@ function PaymentSuccessContent() {
         <div className="space-y-3 pt-2">
           <Link
             href="/dashboard/customer/appointments"
-            className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white salon-gradient hover:opacity-95 shadow-md shadow-rose-900/15 flex items-center justify-center space-x-2"
+            className="btn-emphasis-primary w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-[#80405A] hover:bg-[#6c364c] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d893aa] shadow-md flex items-center justify-center space-x-2"
           >
             <span>View My Appointments</span>
             <ArrowRight className="w-4 h-4" />
@@ -93,7 +93,7 @@ function PaymentSuccessContent() {
 
           <Link
             href="/"
-            className="block text-xs font-semibold text-gray-500 hover:text-gray-800"
+            className="block text-xs font-semibold text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]"
           >
             Return to Homepage
           </Link>
@@ -105,7 +105,7 @@ function PaymentSuccessContent() {
 
 export default function PaymentSuccessPage() {
   return (
-    <Suspense fallback={<LoadingSpinner message="Verifying payment..." />}>
+    <Suspense fallback={<LoadingSpinner message="Loading payment confirmation..." />}>
       <PaymentSuccessContent />
     </Suspense>
   );

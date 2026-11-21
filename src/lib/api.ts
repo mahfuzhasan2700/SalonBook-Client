@@ -34,6 +34,14 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      // Clear stale or invalid mock tokens from localStorage on 401
+      if (response.status === 401 && typeof window !== 'undefined') {
+        const token = localStorage.getItem('salonbook_token');
+        if (token && (token.startsWith('mock_') || data.message?.toLowerCase().includes('token') || data.message?.toLowerCase().includes('jwt'))) {
+          localStorage.removeItem('salonbook_token');
+          localStorage.removeItem('salonbook_user');
+        }
+      }
       throw new Error(data.message || `Request failed with status ${response.status}`);
     }
 
@@ -48,7 +56,7 @@ export const uploadImageToImgBB = async (file: File): Promise<string> => {
   const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
   if (!apiKey) {
-    // If no ImgBB API key provided in env, convert to data URL or return curated salon image URL
+    // If no ImgBB API key provided in env, convert to data URL
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {

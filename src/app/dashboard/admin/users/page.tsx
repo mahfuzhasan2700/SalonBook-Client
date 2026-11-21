@@ -70,26 +70,26 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs uppercase font-bold tracking-wider text-primary-700">
+          <span className="text-xs uppercase font-bold tracking-wider text-[#80405A] dark:text-[#E2A5BA]">
             User Administration
           </span>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
             Manage Registered Customers
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#675961] dark:text-[#C8B8C0]">
             Audit customer accounts, contact details, and suspend or reinstate booking permissions.
           </p>
         </div>
 
         {/* Search */}
         <div className="relative max-w-xs w-full">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#675961] dark:text-[#C8B8C0] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by name or email..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:border-primary-600 text-xs text-gray-800 outline-none bg-white"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-white dark:bg-[#241E23] text-xs text-[#291F26] dark:text-[#F8F1ED] placeholder-[#675961] dark:placeholder-[#C8B8C0]/60 outline-none focus:border-[#80405A] dark:focus:border-[#E2A5BA] transition-colors"
           />
         </div>
       </div>
@@ -102,10 +102,10 @@ export default function AdminUsersPage() {
           description="There are currently no registered customers matching your search query."
         />
       ) : (
-        <div className="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#241E23] rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-rose-50/70 border-b border-rose-100 text-xs font-bold uppercase tracking-wider text-gray-600">
+              <thead className="bg-[#FAF7F3] dark:bg-[#1d171b] border-b border-[#EAE3DB] dark:border-[#382E36] text-xs font-bold uppercase tracking-wider text-[#675961] dark:text-[#C8B8C0]">
                 <tr>
                   <th className="py-4 px-6">Customer</th>
                   <th className="py-4 px-6">Contact Info</th>
@@ -114,41 +114,41 @@ export default function AdminUsersPage() {
                   <th className="py-4 px-6 text-right">Access Controls</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-gray-700">
+              <tbody className="divide-y divide-[#EAE3DB] dark:divide-[#382E36] text-[#291F26] dark:text-[#F8F1ED]">
                 {filteredUsers.map((u) => {
                   const isBlocked = u.isBlocked;
                   return (
-                    <tr key={u._id} className="hover:bg-rose-50/30 transition-colors">
+                    <tr key={u._id} className="hover:bg-[#FAF7F3]/60 dark:hover:bg-[#1d171b]/60 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center space-x-3.5">
                           <img
                             src={u.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
                             alt={u.name}
-                            className="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-rose-100"
+                            className="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-[#80405A]/20 dark:ring-[#E2A5BA]/30"
                           />
                           <div>
-                            <p className="font-bold text-gray-900 text-sm">{u.name}</p>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-primary-700 bg-rose-50 px-2 py-0.5 rounded-full">
+                            <p className="font-bold text-[#291F26] dark:text-[#F8F1ED] text-sm">{u.name}</p>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#80405A] dark:text-[#E2A5BA] bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 px-2 py-0.5 rounded-full">
                               {u.role}
                             </span>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-4 px-6 text-xs text-gray-600 space-y-1">
+                      <td className="py-4 px-6 text-xs text-[#675961] dark:text-[#C8B8C0] space-y-1">
                         <div className="flex items-center space-x-1.5">
-                          <Mail className="w-3.5 h-3.5 text-gray-400" />
+                          <Mail className="w-3.5 h-3.5 text-[#80405A] dark:text-[#E2A5BA]" />
                           <span>{u.email}</span>
                         </div>
                         {u.phone && (
                           <div className="flex items-center space-x-1.5">
-                            <Phone className="w-3.5 h-3.5 text-gray-400" />
+                            <Phone className="w-3.5 h-3.5 text-[#80405A] dark:text-[#E2A5BA]" />
                             <span>{u.phone}</span>
                           </div>
                         )}
                       </td>
 
-                      <td className="py-4 px-6 text-xs text-gray-500">
+                      <td className="py-4 px-6 text-xs text-[#675961] dark:text-[#C8B8C0]">
                         {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}
                       </td>
 
@@ -156,11 +156,15 @@ export default function AdminUsersPage() {
                         <span
                           className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                             isBlocked
-                              ? 'bg-red-50 text-red-700 border border-red-200'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                              : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                           }`}
                         >
-                          {isBlocked ? <ShieldAlert className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                          {isBlocked ? (
+                            <ShieldAlert className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                          ) : (
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          )}
                           <span>{isBlocked ? 'Suspended' : 'Active'}</span>
                         </span>
                       </td>
@@ -172,7 +176,7 @@ export default function AdminUsersPage() {
                           className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                             isBlocked
                               ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
-                              : 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200'
+                              : 'bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-300 border border-red-200 dark:border-red-900/50'
                           }`}
                         >
                           {actionLoadingId === u._id

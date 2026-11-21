@@ -161,7 +161,7 @@ export default function Navbar() {
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-[#291F26] dark:text-[#F8F1ED] hover:bg-[#FAF7F3] dark:hover:bg-[#171316] hover:text-[#80405A] dark:hover:text-[#E2A5BA] transition-colors"
                     >
-                      <LayoutDashboard className="w-4 h-4" />
+                      <LayoutDashboard className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                       <span>Dashboard</span>
                     </Link>
 
@@ -171,18 +171,18 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-[#291F26] dark:text-[#F8F1ED] hover:bg-[#FAF7F3] dark:hover:bg-[#171316] hover:text-[#80405A] dark:hover:text-[#E2A5BA] transition-colors"
                       >
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                         <span>My Appointments</span>
                       </Link>
                     )}
 
-                    <div className="border-t border-gray-100 dark:border-gray-800 my-1"></div>
+                    <div className="border-t border-[#EAE3DB] dark:border-[#382E36] my-1"></div>
 
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      className="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-4 h-4 text-red-600 dark:text-red-400" />
                       <span>Logout</span>
                     </button>
                   </div>

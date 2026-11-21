@@ -30,6 +30,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const storedUser = localStorage.getItem('salonbook_user');
 
       if (storedToken) {
+        // Auto-purge any legacy mock tokens from earlier evaluation builds
+        if (storedToken.startsWith('mock_')) {
+          logout();
+          setIsLoading(false);
+          return;
+        }
+
         setToken(storedToken);
         if (storedUser) {
           try {
@@ -39,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
 
-        // Verify token with backend
+        // Verify token with live backend
         try {
           const res = await apiFetch('/auth/me');
           if (res.success && res.user) {
@@ -52,12 +59,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           }
         } catch (error: any) {
-          // Only log out if the server explicitly rejects the token (401 / expired / invalid)
-          // Do NOT log out on simple network errors, offline server, or client-side evaluation
           const msg = (error?.message || '').toLowerCase();
           if (
             msg.includes('401') ||
             msg.includes('invalid or expired') ||
+            msg.includes('jwt') ||
             msg.includes('access denied') ||
             msg.includes('user no longer exists')
           ) {

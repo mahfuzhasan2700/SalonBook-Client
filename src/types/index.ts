@@ -31,6 +31,10 @@ export type PaymentStatus = 'unpaid' | 'paid';
 export interface Appointment {
   _id: string;
   serviceId: Service;
+  serviceName?: string;
+  serviceCategory?: string;
+  serviceImage?: string;
+  serviceDuration?: number;
   customerId: User;
   appointmentDate: string;
   timeSlot: string;

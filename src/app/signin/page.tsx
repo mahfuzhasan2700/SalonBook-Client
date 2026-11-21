@@ -49,55 +49,6 @@ function SignInContent() {
         return;
       }
     } catch (error: any) {
-      // Resilient fallback authentication for known evaluator accounts if network/backend is unreachable
-      const lowerEmail = email.trim().toLowerCase();
-      if (lowerEmail === 'admin@salonbook.com' && password === 'Admin@123456') {
-        const adminUser = {
-          _id: 'admin_evaluator_001',
-          name: 'Elena Rostova (Salon Admin)',
-          email: 'admin@salonbook.com',
-          role: 'admin' as const,
-          isBlocked: false,
-          phone: '+1 (555) 234-5678',
-          image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-        };
-        const mockToken = 'mock_jwt_evaluator_admin_' + Date.now();
-        toast.success('Welcome back, Elena Rostova!');
-        login(mockToken, adminUser);
-        router.push(redirectParam || '/dashboard/admin');
-        return;
-      } else if (lowerEmail === 'sophia@example.com' && password === 'Customer@123') {
-        const customerUser = {
-          _id: 'cust_evaluator_001',
-          name: 'Sophia Williams',
-          email: 'sophia@example.com',
-          role: 'customer' as const,
-          isBlocked: false,
-          phone: '+1 (555) 987-6543',
-          image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-        };
-        const mockToken = 'mock_jwt_evaluator_customer_' + Date.now();
-        toast.success('Welcome back, Sophia Williams!');
-        login(mockToken, customerUser);
-        router.push(redirectParam || '/dashboard/customer');
-        return;
-      } else if (lowerEmail === 'amelia@example.com' && password === 'Customer@456') {
-        const customerUser = {
-          _id: 'cust_evaluator_002',
-          name: 'Amelia Clark',
-          email: 'amelia@example.com',
-          role: 'customer' as const,
-          isBlocked: false,
-          phone: '+1 (555) 765-4321',
-          image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-        };
-        const mockToken = 'mock_jwt_evaluator_customer2_' + Date.now();
-        toast.success('Welcome back, Amelia Clark!');
-        login(mockToken, customerUser);
-        router.push(redirectParam || '/dashboard/customer');
-        return;
-      }
-
       toast.error(error.message || 'Invalid email or password.');
     } finally {
       setIsSubmitting(false);
