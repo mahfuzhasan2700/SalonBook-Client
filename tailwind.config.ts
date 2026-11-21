@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,32 +9,49 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        serif: ['var(--font-cormorant)', 'Cormorant Garamond', 'Georgia', 'serif'],
+        sans: ['var(--font-dm-sans)', 'DM Sans', 'sans-serif'],
+      },
       colors: {
-        primary: {
-          50: '#fff1f2',
-          100: '#ffe4e6',
-          200: '#fecdd3',
-          300: '#fda4af',
-          400: '#fb7185',
-          500: '#f43f5e',
-          600: '#e11d48',
-          700: '#be123c',
-          800: '#9f1239',
-          900: '#881337',
-          950: '#4c0519',
+        // Master Prompt Light/Dark Theme Tokens
+        theme: {
+          light: {
+            page: '#FAF7F3',
+            surface: '#FFFFFF',
+            espresso: '#291F26',
+            muted: '#675961',
+            berry: '#80405A',
+            berryHover: '#6a3449',
+            border: '#EAE3DB',
+          },
+          dark: {
+            ink: '#171316',
+            charcoal: '#241E23',
+            white: '#F8F1ED',
+            muted: '#C8B8C0',
+            rose: '#E2A5BA',
+            roseHover: '#d88ea6',
+            border: '#382E36',
+          },
         },
-        gold: {
-          50: '#fbf8ea',
-          100: '#f5eecc',
-          200: '#ebdc9b',
-          300: '#dfc665',
-          400: '#d5b13c',
-          500: '#c59a27',
-          600: '#aa7a1e',
-          700: '#885a1b',
-          800: '#71481c',
-          900: '#603d1c',
-        }
+        primary: {
+          50: '#fdf4f7',
+          100: '#faeaf0',
+          200: '#f6d5e1',
+          300: '#efb3c8',
+          400: '#e288a8',
+          500: '#cf6389',
+          600: '#b8466e',
+          700: '#80405A', // Official Theme Berry
+          800: '#6d2a45',
+          900: '#5c263c',
+          950: '#3a1222',
+        },
+        roseDust: '#E2A5BA', // Official Theme Dark Primary
+      },
+      transitionDuration: {
+        '180': '180ms',
       },
     },
   },
