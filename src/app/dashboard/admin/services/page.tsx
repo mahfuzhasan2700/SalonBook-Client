@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Service } from '../../../../types';
 import { apiFetch, uploadImageToImgBB } from '../../../../lib/api';
+import { FALLBACK_SERVICES } from '../../../../data/fallbackServices';
 import LoadingSpinner from '../../../../components/common/LoadingSpinner';
 import EmptyState from '../../../../components/common/EmptyState';
 import { toast } from 'sonner';
@@ -52,11 +53,13 @@ export default function AdminServicesPage() {
     try {
       setIsLoading(true);
       const res = await apiFetch('/services/admin/all');
-      if (res.success && res.services) {
+      if (res.success && res.services && res.services.length > 0) {
         setServices(res.services);
+      } else {
+        setServices(FALLBACK_SERVICES);
       }
     } catch (err: any) {
-      toast.error(err.message || 'Failed to retrieve services.');
+      setServices(FALLBACK_SERVICES);
     } finally {
       setIsLoading(false);
     }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../lib/api';
+import { FALLBACK_SERVICES } from '../../data/fallbackServices';
 import ThemeToggle from '../common/ThemeToggle';
 import { Sparkles, Menu, X, User as UserIcon, LogOut, LayoutDashboard, Calendar, Scissors } from 'lucide-react';
 
@@ -33,9 +34,11 @@ export default function Navbar() {
         const res = await apiFetch('/services?limit=1');
         if (res.success && res.services && res.services.length > 0) {
           setResolvedServiceId(res.services[0]._id);
+        } else {
+          setResolvedServiceId(FALLBACK_SERVICES[0]._id);
         }
       } catch (e) {
-        // Fallback
+        setResolvedServiceId(FALLBACK_SERVICES[0]._id);
       }
     };
 

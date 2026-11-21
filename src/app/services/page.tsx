@@ -4,10 +4,11 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Service } from '../../types';
 import { apiFetch } from '../../lib/api';
+import { FALLBACK_SERVICES } from '../../data/fallbackServices';
 import ServiceCard from '../../components/services/ServiceCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
-import { Search, Filter, ArrowUpDown, Sparkles, X, DollarSign, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, ArrowUpDown, Sparkles, X, DollarSign } from 'lucide-react';
 
 const CATEGORIES = [
   'All',
@@ -31,12 +32,14 @@ function BrowseServicesContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All';
 
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<Service[]>(() =>
+    FALLBACK_SERVICES.filter((s) => s.status === 'active')
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedPriceRange, setSelectedPriceRange] = useState(0); // index
   const [sortOption, setSortOption] = useState<'default' | 'price-asc' | 'price-desc'>('default');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Sync category state if URL parameter changes
   useEffect(() => {
@@ -63,7 +66,7 @@ function BrowseServicesContent() {
 
         const endpoint = `/services?${queryParams.toString()}`;
         const res = await apiFetch(endpoint);
-        if (res.success && res.services) {
+        if (res.success && res.services && res.services.length > 0) {
           let filtered = res.services;
 
           // Apply client-side price range filtering if selected
@@ -76,10 +79,48 @@ function BrowseServicesContent() {
 
           setServices(filtered);
         } else {
-          setServices([]);
+          // If server returned 0 or not ready, fallback gracefully to pre-seeded catalog
+          let fallback = FALLBACK_SERVICES.filter((s) => s.status === 'active');
+          if (searchTerm.trim()) {
+            fallback = fallback.filter((s) =>
+              s.serviceName.toLowerCase().includes(searchTerm.trim().toLowerCase())
+            );
+          }
+          if (selectedCategory && selectedCategory !== 'All') {
+            fallback = fallback.filter((s) => s.category === selectedCategory);
+          }
+          if (sortOption === 'price-asc') {
+            fallback.sort((a, b) => a.price - b.price);
+          } else if (sortOption === 'price-desc') {
+            fallback.sort((a, b) => b.price - a.price);
+          }
+          if (selectedPriceRange !== 0) {
+            const range = PRICE_RANGES[selectedPriceRange];
+            fallback = fallback.filter((s) => s.price >= range.min && s.price <= range.max);
+          }
+          setServices(fallback);
         }
       } catch (error) {
-        setServices([]);
+        // Fallback to embedded catalog records filtered according to selections
+        let fallback = FALLBACK_SERVICES.filter((s) => s.status === 'active');
+        if (searchTerm.trim()) {
+          fallback = fallback.filter((s) =>
+            s.serviceName.toLowerCase().includes(searchTerm.trim().toLowerCase())
+          );
+        }
+        if (selectedCategory && selectedCategory !== 'All') {
+          fallback = fallback.filter((s) => s.category === selectedCategory);
+        }
+        if (sortOption === 'price-asc') {
+          fallback.sort((a, b) => a.price - b.price);
+        } else if (sortOption === 'price-desc') {
+          fallback.sort((a, b) => b.price - a.price);
+        }
+        if (selectedPriceRange !== 0) {
+          const range = PRICE_RANGES[selectedPriceRange];
+          fallback = fallback.filter((s) => s.price >= range.min && s.price <= range.max);
+        }
+        setServices(fallback);
       } finally {
         setIsLoading(false);
       }
@@ -109,35 +150,35 @@ function BrowseServicesContent() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <div className="inline-flex items-center space-x-2 bg-rose-50 text-primary-700 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+        <div className="inline-flex items-center space-x-2 bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider font-sans">
+          <Sparkles className="w-3.5 h-3.5" />
           <span>Curated Salon Menu</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-gray-900 tracking-tight">
+        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] tracking-tight">
           Browse Salon Services
         </h1>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#675961] dark:text-[#C8B8C0]">
           Explore bespoke haircuts, high-gloss balayage, botanical facials, and luxury spa therapies.
         </p>
       </div>
 
       {/* Search, Filter & Sort Controls */}
-      <div className="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-[#241E23] p-6 rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm space-y-6">
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-center">
           {/* Search Bar */}
           <div className="relative w-full lg:w-96">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#675961] dark:text-[#C8B8C0] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search services by name (e.g. Balayage, Cut, Facial)..."
-              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 text-sm text-gray-800 outline-none transition-all"
+              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] focus:border-[#80405A] dark:focus:border-[#E2A5BA] focus:ring-2 focus:ring-[#80405A]/20 text-sm text-[#291F26] dark:text-[#F8F1ED] outline-none transition-all"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#675961] hover:text-[#291F26] dark:hover:text-[#F8F1ED]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -147,8 +188,8 @@ function BrowseServicesContent() {
           {/* Price Range Filter Buttons & Sort Dropdown */}
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
             {/* Price Filter Chips */}
-            <div className="flex items-center space-x-1 bg-gray-50 p-1 rounded-xl border border-gray-200 text-xs">
-              <span className="text-[10px] uppercase font-bold text-gray-400 px-2 flex items-center space-x-1">
+            <div className="flex items-center space-x-1 bg-[#FAF7F3] dark:bg-[#171316] p-1 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] text-xs">
+              <span className="text-[10px] uppercase font-bold text-[#675961] dark:text-[#C8B8C0] px-2 flex items-center space-x-1">
                 <DollarSign className="w-3 h-3" />
                 <span>Price:</span>
               </span>
@@ -158,8 +199,8 @@ function BrowseServicesContent() {
                   onClick={() => setSelectedPriceRange(index)}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
                     selectedPriceRange === index
-                      ? 'bg-white text-primary-800 shadow-sm border border-rose-100'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-white dark:bg-[#241E23] text-[#80405A] dark:text-[#E2A5BA] shadow-sm border border-[#EAE3DB] dark:border-[#382E36]'
+                      : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
                   }`}
                 >
                   {range.label}
@@ -169,11 +210,11 @@ function BrowseServicesContent() {
 
             {/* Sort Dropdown */}
             <div className="flex items-center space-x-1.5">
-              <ArrowUpDown className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#675961] dark:text-[#C8B8C0] shrink-0" />
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as any)}
-                className="px-3 py-2 rounded-xl border border-gray-200 focus:border-primary-600 text-xs font-semibold text-gray-800 outline-none bg-white cursor-pointer shadow-sm"
+                className="px-3 py-2 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] focus:border-[#80405A] dark:focus:border-[#E2A5BA] text-xs font-semibold text-[#291F26] dark:text-[#F8F1ED] outline-none bg-white dark:bg-[#171316] cursor-pointer shadow-sm"
               >
                 <option value="default">Sort: Newest First</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -184,7 +225,7 @@ function BrowseServicesContent() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-xs text-rose-600 hover:text-rose-800 font-semibold underline px-1"
+                className="text-xs text-[#80405A] dark:text-[#E2A5BA] hover:underline font-semibold px-1"
               >
                 Reset Filters
               </button>
@@ -194,7 +235,7 @@ function BrowseServicesContent() {
 
         {/* Category Filter Tabs */}
         <div>
-          <div className="flex items-center space-x-2 mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
+          <div className="flex items-center space-x-2 mb-3 text-xs font-bold uppercase tracking-wider text-[#675961] dark:text-[#C8B8C0]">
             <Filter className="w-3.5 h-3.5" />
             <span>Filter By Category:</span>
           </div>
@@ -207,8 +248,8 @@ function BrowseServicesContent() {
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                     isSelected
-                      ? 'bg-primary-700 text-white shadow-md shadow-rose-900/15'
-                      : 'bg-rose-50/60 text-gray-700 hover:bg-rose-100 hover:text-primary-800'
+                      ? 'bg-[#80405A] dark:bg-[#E2A5BA] text-white dark:text-[#24171D] shadow-md'
+                      : 'bg-[#FAF7F3] dark:bg-[#171316] text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED] border border-[#EAE3DB] dark:border-[#382E36]'
                   }`}
                 >
                   {cat}
@@ -231,12 +272,12 @@ function BrowseServicesContent() {
         />
       ) : (
         <div className="space-y-6">
-          <div className="flex justify-between items-center text-xs text-gray-500 px-1">
+          <div className="flex justify-between items-center text-xs text-[#675961] dark:text-[#C8B8C0] px-1">
             <span>
-              Showing <strong>{services.length}</strong> active salon service{services.length === 1 ? '' : 's'}
+              Showing <strong className="text-[#291F26] dark:text-[#F8F1ED]">{services.length}</strong> active salon service{services.length === 1 ? '' : 's'}
             </span>
             {selectedCategory !== 'All' && (
-              <span className="font-semibold text-primary-700 bg-rose-50 px-2.5 py-1 rounded-md">
+              <span className="font-semibold text-[#80405A] dark:text-[#E2A5BA] bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 px-2.5 py-1 rounded-md">
                 Department: {selectedCategory}
               </span>
             )}

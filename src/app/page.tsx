@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Service } from '../types';
 import { apiFetch } from '../lib/api';
+import { FALLBACK_SERVICES } from '../data/fallbackServices';
 import ServiceCard from '../components/services/ServiceCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import {
@@ -75,12 +76,14 @@ export default function HomePage() {
     const fetchServices = async () => {
       try {
         const res = await apiFetch('/services?limit=6');
-        if (res.success && res.services) {
+        if (res.success && res.services && res.services.length > 0) {
           // Display only active services per requirement
           setFeaturedServices(res.services.filter((s: Service) => s.status === 'active').slice(0, 6));
+        } else {
+          setFeaturedServices(FALLBACK_SERVICES.filter((s) => s.status === 'active').slice(0, 6));
         }
       } catch (e) {
-        // Fallback
+        setFeaturedServices(FALLBACK_SERVICES.filter((s) => s.status === 'active').slice(0, 6));
       } finally {
         setIsLoading(false);
       }

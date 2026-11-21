@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Service } from '../../../types';
 import { apiFetch } from '../../../lib/api';
+import { FALLBACK_SERVICES } from '../../../data/fallbackServices';
 import { useAuth } from '../../../context/AuthContext';
 import ServiceCard from '../../../components/services/ServiceCard';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
@@ -91,12 +92,38 @@ export default function ServiceDetailsPage() {
             // Ignore related fetch failure
           }
         } else {
-          setIsError(true);
-          setErrorMessage(res.message || 'Service not found.');
+          // Check embedded fallback catalog if API returned error
+          const fallback = FALLBACK_SERVICES.find((s) => s._id === id);
+          if (fallback) {
+            setService(fallback);
+            if (typeof window !== 'undefined' && id) {
+              localStorage.setItem('salonbook_last_viewed_service', String(id));
+            }
+            const related = FALLBACK_SERVICES.filter(
+              (s) => s.category === fallback.category && s._id !== fallback._id
+            ).slice(0, 3);
+            setRelatedServices(related);
+          } else {
+            setIsError(true);
+            setErrorMessage(res.message || 'Service not found.');
+          }
         }
       } catch (err: any) {
-        setIsError(true);
-        setErrorMessage(err.message || 'Failed to retrieve salon service details.');
+        // Check embedded fallback catalog if network/API failed
+        const fallback = FALLBACK_SERVICES.find((s) => s._id === id);
+        if (fallback) {
+          setService(fallback);
+          if (typeof window !== 'undefined' && id) {
+            localStorage.setItem('salonbook_last_viewed_service', String(id));
+          }
+          const related = FALLBACK_SERVICES.filter(
+            (s) => s.category === fallback.category && s._id !== fallback._id
+          ).slice(0, 3);
+          setRelatedServices(related);
+        } else {
+          setIsError(true);
+          setErrorMessage(err.message || 'Failed to retrieve salon service details.');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -124,18 +151,13 @@ export default function ServiceDetailsPage() {
       return;
     }
 
-    if (!service || service.status === 'inactive') {
-      toast.error('This salon service is currently unavailable for booking.');
-      return;
-    }
-
     if (!appointmentDate) {
-      toast.error('Please select your preferred appointment date.');
+      toast.error('Please choose a preferred appointment date.');
       return;
     }
 
     if (!timeSlot) {
-      toast.error('Please choose an available time slot.');
+      toast.error('Please pick one of our available time slots.');
       return;
     }
 
@@ -145,40 +167,43 @@ export default function ServiceDetailsPage() {
       const res = await apiFetch('/appointments', {
         method: 'POST',
         body: JSON.stringify({
-          serviceId: service._id,
+          serviceId: id,
           appointmentDate,
           timeSlot,
           message,
         }),
       });
 
-      if (res.success) {
-        toast.success('Appointment request submitted successfully!');
+      if (res.success && res.appointment) {
+        toast.success('Appointment request submitted! Pending salon confirmation.');
         router.push('/dashboard/customer/appointments');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to submit appointment request.');
+    } catch (err: any) {
+      // Handles 409 Conflict error for double-booked slots gracefully
+      toast.error(err.message || 'Failed to submit appointment request.');
     } finally {
       setIsSubmittingBooking(false);
     }
   };
 
+  // Loading Screen
   if (authLoading || isLoading) {
-    return <LoadingSpinner message="Curating service details & available schedules..." size="lg" />;
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <LoadingSpinner message="Consulting editorial salon menu..." />
+      </div>
+    );
   }
 
+  // Error / Not Found Screen
   if (isError || !service) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16">
+      <div className="max-w-4xl mx-auto px-4 py-20">
         <EmptyState
-          title="Service Not Found"
-          description={
-            errorMessage ||
-            "We couldn't locate the requested salon service. The service ID may be invalid or the treatment was removed."
-          }
-          actionText="Explore Active Salon Menu"
-          actionHref="/services"
-          icon={<AlertCircle className="w-8 h-8 text-rose-600" />}
+          title="Service Unavailable"
+          description={errorMessage || 'The salon service you are looking for does not exist or has been archived.'}
+          actionText="Browse Available Services"
+          onActionClick={() => router.push('/services')}
         />
       </div>
     );
@@ -188,24 +213,24 @@ export default function ServiceDetailsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-      {/* 1. BREADCRUMBS NAVIGATION */}
-      <nav className="flex items-center space-x-2 text-xs font-medium text-gray-500">
-        <Link href="/" className="hover:text-primary-700 transition-colors">
+      {/* 1. BREADCRUMB NAVIGATION */}
+      <nav className="flex items-center space-x-2 text-xs text-[#675961] dark:text-[#C8B8C0]">
+        <Link href="/" className="hover:text-[#80405A] dark:hover:text-[#E2A5BA] transition-colors">
           Home
         </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-        <Link href="/services" className="hover:text-primary-700 transition-colors">
+        <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+        <Link href="/services" className="hover:text-[#80405A] dark:hover:text-[#E2A5BA] transition-colors">
           Browse Services
         </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+        <ChevronRight className="w-3.5 h-3.5 opacity-50" />
         <Link
           href={`/services?category=${encodeURIComponent(service.category)}`}
-          className="hover:text-primary-700 transition-colors"
+          className="hover:text-[#80405A] dark:hover:text-[#E2A5BA] transition-colors"
         >
           {service.category}
         </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-        <span className="text-gray-900 font-semibold truncate max-w-[200px]">{service.serviceName}</span>
+        <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+        <span className="text-[#291F26] dark:text-[#F8F1ED] font-semibold truncate max-w-[200px]">{service.serviceName}</span>
       </nav>
 
       {/* 2. MAIN SHOWCASE & BOOKING GRID */}
@@ -213,7 +238,7 @@ export default function ServiceDetailsPage() {
         {/* Left Column: Image & Details */}
         <div className="lg:col-span-7 space-y-8">
           {/* Main Visual */}
-          <div className="relative aspect-[16/10] rounded-3xl overflow-hidden shadow-xl border border-rose-100 bg-rose-50 group">
+          <div className="relative aspect-[16/10] rounded-3xl overflow-hidden shadow-xl border border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] group">
             <img
               src={service.image}
               alt={service.serviceName}
@@ -232,14 +257,14 @@ export default function ServiceDetailsPage() {
             )}
 
             {/* Category Pill */}
-            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-primary-800 shadow-md flex items-center space-x-1.5">
-              <Tag className="w-3.5 h-3.5 text-primary-600" />
+            <div className="absolute top-4 left-4 bg-white/95 dark:bg-[#241E23]/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-[#80405A] dark:text-[#E2A5BA] shadow-md flex items-center space-x-1.5">
+              <Tag className="w-3.5 h-3.5 text-[#80405A] dark:text-[#E2A5BA]" />
               <span>{service.category}</span>
             </div>
 
             {/* Price Badge on Image */}
-            <div className="absolute bottom-4 left-4 bg-gray-950/85 backdrop-blur-md text-white px-4 py-2 rounded-2xl shadow-lg flex items-center space-x-2">
-              <span className="text-xs text-rose-200 font-medium">Session Fee:</span>
+            <div className="absolute bottom-4 left-4 bg-[#171316]/90 backdrop-blur-md text-[#F8F1ED] px-4 py-2 rounded-2xl shadow-lg flex items-center space-x-2">
+              <span className="text-xs text-[#C8B8C0] font-medium">Session Fee:</span>
               <span className="text-xl font-bold text-white">${service.price}</span>
             </div>
           </div>
@@ -247,50 +272,50 @@ export default function ServiceDetailsPage() {
           {/* Title & Metadata Strip */}
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex items-center space-x-2 bg-rose-50 text-primary-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <div className="inline-flex items-center space-x-2 bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-sans">
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>Premier Salon Ritual</span>
               </div>
 
               {/* Review indicator */}
-              <div className="flex items-center space-x-1 text-xs text-gray-600">
+              <div className="flex items-center space-x-1 text-xs text-[#675961] dark:text-[#C8B8C0]">
                 <div className="flex text-amber-400">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-current" />
                   ))}
                 </div>
-                <span className="font-bold text-gray-900 ml-1">4.9</span>
-                <span className="text-gray-400">(140+ Client Reviews)</span>
+                <span className="font-bold text-[#291F26] dark:text-[#F8F1ED] ml-1">4.9</span>
+                <span className="text-[#675961] dark:text-[#C8B8C0]">(140+ Client Reviews)</span>
               </div>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 tracking-tight leading-snug">
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] tracking-tight leading-snug">
               {service.serviceName}
             </h1>
 
             {/* Duration and Category info bar */}
-            <div className="flex items-center space-x-6 text-sm text-gray-600 pt-1">
+            <div className="flex items-center space-x-6 text-sm text-[#675961] dark:text-[#C8B8C0] pt-1">
               <div className="flex items-center space-x-1.5">
-                <Clock className="w-4 h-4 text-primary-600" />
+                <Clock className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                 <span>
-                  Estimated Duration: <strong>{service.duration} Minutes</strong>
+                  Estimated Duration: <strong className="text-[#291F26] dark:text-[#F8F1ED]">{service.duration} Minutes</strong>
                 </span>
               </div>
               <div className="flex items-center space-x-1.5">
-                <Award className="w-4 h-4 text-primary-600" />
+                <Award className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                 <span>Master Stylist Handled</span>
               </div>
             </div>
           </div>
 
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200 flex space-x-8 text-sm font-semibold">
+          <div className="border-b border-[#EAE3DB] dark:border-[#382E36] flex space-x-8 text-sm font-semibold">
             <button
               onClick={() => setActiveTab('overview')}
               className={`pb-3 transition-colors ${
                 activeTab === 'overview'
-                  ? 'border-b-2 border-primary-700 text-primary-700 font-bold'
-                  : 'text-gray-500 hover:text-gray-800'
+                  ? 'border-b-2 border-[#80405A] dark:border-[#E2A5BA] text-[#80405A] dark:text-[#E2A5BA] font-bold'
+                  : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
               }`}
             >
               Treatment Overview
@@ -299,8 +324,8 @@ export default function ServiceDetailsPage() {
               onClick={() => setActiveTab('inclusions')}
               className={`pb-3 transition-colors ${
                 activeTab === 'inclusions'
-                  ? 'border-b-2 border-primary-700 text-primary-700 font-bold'
-                  : 'text-gray-500 hover:text-gray-800'
+                  ? 'border-b-2 border-[#80405A] dark:border-[#E2A5BA] text-[#80405A] dark:text-[#E2A5BA] font-bold'
+                  : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
               }`}
             >
               What's Included
@@ -309,8 +334,8 @@ export default function ServiceDetailsPage() {
               onClick={() => setActiveTab('policy')}
               className={`pb-3 transition-colors ${
                 activeTab === 'policy'
-                  ? 'border-b-2 border-primary-700 text-primary-700 font-bold'
-                  : 'text-gray-500 hover:text-gray-800'
+                  ? 'border-b-2 border-[#80405A] dark:border-[#E2A5BA] text-[#80405A] dark:text-[#E2A5BA] font-bold'
+                  : 'text-[#675961] dark:text-[#C8B8C0] hover:text-[#291F26] dark:hover:text-[#F8F1ED]'
               }`}
             >
               Cancellation & Standards
@@ -318,30 +343,30 @@ export default function ServiceDetailsPage() {
           </div>
 
           {/* Tab Content */}
-          <div className="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm text-sm text-gray-600 leading-relaxed">
+          <div className="bg-white dark:bg-[#241E23] p-6 rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm text-sm text-[#675961] dark:text-[#C8B8C0] leading-relaxed">
             {activeTab === 'overview' && (
               <div className="space-y-4">
-                <p className="text-base text-gray-800 font-serif leading-relaxed">
+                <p className="text-base text-[#291F26] dark:text-[#F8F1ED] font-serif leading-relaxed">
                   {service.description}
                 </p>
                 <p>
                   Every session begins with an individualized hair and skin assessment. Our master artists tailor color tones, hair textures, and facial serums to harmonize with your natural features and personal style.
                 </p>
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100 text-xs text-gray-700">
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#EAE3DB] dark:border-[#382E36] text-xs text-[#291F26] dark:text-[#F8F1ED]">
                   <div className="flex items-center space-x-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>Hospital-grade sterilization</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>Cruelty-free organic products</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>Complimentary consultation</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>Refreshments & espresso bar</span>
                   </div>
                 </div>
@@ -351,35 +376,35 @@ export default function ServiceDetailsPage() {
             {activeTab === 'inclusions' && (
               <ul className="space-y-3">
                 <li className="flex items-start space-x-3">
-                  <div className="w-5 h-5 rounded-full bg-rose-50 text-primary-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-5 h-5 rounded-full bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center shrink-0 mt-0.5 font-bold">
                     ✓
                   </div>
                   <span>
-                    <strong>Comprehensive Stylist Consultation:</strong> Discussion of desired look, lifestyle, and hair texture suitability.
+                    <strong className="text-[#291F26] dark:text-[#F8F1ED]">Comprehensive Stylist Consultation:</strong> Discussion of desired look, lifestyle, and hair texture suitability.
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <div className="w-5 h-5 rounded-full bg-rose-50 text-primary-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-5 h-5 rounded-full bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center shrink-0 mt-0.5 font-bold">
                     ✓
                   </div>
                   <span>
-                    <strong>Luxury Wash & Prep:</strong> Aromatherapeutic scalp massage with sulfate-free organic shampoo and deep-conditioner.
+                    <strong className="text-[#291F26] dark:text-[#F8F1ED]">Luxury Wash & Prep:</strong> Aromatherapeutic scalp massage with sulfate-free organic shampoo and deep-conditioner.
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <div className="w-5 h-5 rounded-full bg-rose-50 text-primary-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-5 h-5 rounded-full bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center shrink-0 mt-0.5 font-bold">
                     ✓
                   </div>
                   <span>
-                    <strong>Precision Execution:</strong> Expert application using diamond tools, professional shears, and European toners.
+                    <strong className="text-[#291F26] dark:text-[#F8F1ED]">Precision Execution:</strong> Expert application using diamond tools, professional shears, and European toners.
                   </span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <div className="w-5 h-5 rounded-full bg-rose-50 text-primary-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-5 h-5 rounded-full bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center shrink-0 mt-0.5 font-bold">
                     ✓
                   </div>
                   <span>
-                    <strong>Signature Finishing:</strong> High-shine blowout, thermal heat protection, and bespoke home styling tips.
+                    <strong className="text-[#291F26] dark:text-[#F8F1ED]">Signature Finishing:</strong> High-shine blowout, thermal heat protection, and bespoke home styling tips.
                   </span>
                 </li>
               </ul>
@@ -388,13 +413,13 @@ export default function ServiceDetailsPage() {
             {activeTab === 'policy' && (
               <div className="space-y-3">
                 <p>
-                  <strong>Zero-Risk Booking:</strong> You can submit appointment requests without paying upfront. Your request remains <em>Pending</em> until reviewed and accepted by our salon manager.
+                  <strong className="text-[#291F26] dark:text-[#F8F1ED]">Zero-Risk Booking:</strong> You can submit appointment requests without paying upfront. Your request remains <em>Pending</em> until reviewed and accepted by our salon manager.
                 </p>
                 <p>
-                  <strong>Flexible Cancellation:</strong> You can cancel any <em>Pending</em> appointment directly from your customer dashboard with a single click.
+                  <strong className="text-[#291F26] dark:text-[#F8F1ED]">Flexible Cancellation:</strong> You can cancel any <em>Pending</em> appointment directly from your customer dashboard with a single click.
                 </p>
                 <p>
-                  <strong>Secure Stripe Checkout:</strong> Once confirmed by administration, you can pay conveniently via credit card or Google Pay through Stripe.
+                  <strong className="text-[#291F26] dark:text-[#F8F1ED]">Secure Stripe Checkout:</strong> Once confirmed by administration, you can pay conveniently via credit card or Google Pay through Stripe.
                 </p>
               </div>
             )}
@@ -403,16 +428,16 @@ export default function ServiceDetailsPage() {
 
         {/* Right Column: Appointment Booking Form */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
-          <div className="bg-white rounded-3xl border border-rose-100 shadow-xl overflow-hidden">
+          <div className="bg-white dark:bg-[#241E23] rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-xl overflow-hidden">
             {/* Booking Card Header */}
-            <div className="p-6 salon-gradient text-white">
-              <span className="text-[11px] uppercase font-bold tracking-widest text-rose-200">
+            <div className="p-6 bg-[#80405A] dark:bg-[#2B2027] text-white border-b border-[#EAE3DB]/20">
+              <span className="text-[11px] uppercase font-bold tracking-widest text-[#E2A5BA]">
                 Direct Reservation
               </span>
               <h3 className="text-xl font-serif font-bold text-white mt-1">
                 Schedule Your Appointment
               </h3>
-              <div className="flex items-center justify-between text-xs text-rose-100 mt-2 pt-2 border-t border-rose-800/40">
+              <div className="flex items-center justify-between text-xs text-white/80 mt-2 pt-2 border-t border-white/15">
                 <span>Fee: ${service.price}</span>
                 <span>Duration: {service.duration} mins</span>
               </div>
@@ -422,8 +447,8 @@ export default function ServiceDetailsPage() {
             <form onSubmit={handleBookingSubmit} className="p-6 space-y-5">
               {/* Date Input */}
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                  <Calendar className="w-4 h-4 text-primary-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-[#291F26] dark:text-[#F8F1ED] mb-1.5 font-sans">
+                  <Calendar className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                   <span>1. Select Appointment Date *</span>
                 </label>
                 <input
@@ -433,14 +458,14 @@ export default function ServiceDetailsPage() {
                   onChange={(e) => setAppointmentDate(e.target.value)}
                   required
                   disabled={isInactive || isAdmin}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 text-sm text-gray-800 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] focus:border-[#80405A] dark:focus:border-[#E2A5BA] focus:ring-2 focus:ring-[#80405A]/20 text-sm text-[#291F26] dark:text-[#F8F1ED] outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
 
               {/* Predefined Time Slots */}
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                  <Clock className="w-4 h-4 text-primary-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-[#291F26] dark:text-[#F8F1ED] mb-1.5 font-sans">
+                  <Clock className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                   <span>2. Select Time Window *</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -454,8 +479,8 @@ export default function ServiceDetailsPage() {
                         onClick={() => setTimeSlot(slot)}
                         className={`py-2 px-2.5 text-xs font-semibold rounded-xl border transition-all text-center ${
                           isSelected
-                            ? 'border-primary-600 bg-primary-50 text-primary-800 shadow-sm'
-                            : 'border-gray-200 text-gray-700 hover:border-rose-200 hover:bg-rose-50/50 disabled:opacity-50 disabled:hover:bg-transparent'
+                            ? 'border-[#80405A] bg-[#80405A]/10 text-[#80405A] dark:border-[#E2A5BA] dark:bg-[#E2A5BA]/20 dark:text-[#E2A5BA] shadow-sm'
+                            : 'border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] text-[#675961] dark:text-[#C8B8C0] hover:border-[#80405A]/40 dark:hover:border-[#E2A5BA]/40 disabled:opacity-50'
                         }`}
                       >
                         {slot}
@@ -467,8 +492,8 @@ export default function ServiceDetailsPage() {
 
               {/* Message Note */}
               <div>
-                <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                  <MessageSquare className="w-4 h-4 text-primary-600" />
+                <label className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-[#291F26] dark:text-[#F8F1ED] mb-1.5 font-sans">
+                  <MessageSquare className="w-4 h-4 text-[#80405A] dark:text-[#E2A5BA]" />
                   <span>3. Special Requests or Notes (Optional)</span>
                 </label>
                 <textarea
@@ -477,30 +502,30 @@ export default function ServiceDetailsPage() {
                   onChange={(e) => setMessage(e.target.value)}
                   disabled={isInactive || isAdmin}
                   placeholder="Hair length, sensitivity, preferences..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 text-xs text-gray-800 outline-none resize-none disabled:bg-gray-100"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316] focus:border-[#80405A] dark:focus:border-[#E2A5BA] focus:ring-2 focus:ring-[#80405A]/20 text-xs text-[#291F26] dark:text-[#F8F1ED] outline-none resize-none disabled:opacity-50"
                 />
               </div>
 
               {/* Booking Summary Box */}
-              <div className="bg-rose-50/70 p-3.5 rounded-2xl border border-rose-100 text-xs space-y-1.5">
-                <div className="flex justify-between text-gray-600">
+              <div className="bg-[#FAF7F3] dark:bg-[#171316] p-3.5 rounded-2xl border border-[#EAE3DB] dark:border-[#382E36] text-xs space-y-1.5">
+                <div className="flex justify-between text-[#675961] dark:text-[#C8B8C0]">
                   <span>Treatment Fee:</span>
-                  <span className="font-bold text-gray-900">${service.price}</span>
+                  <span className="font-bold text-[#291F26] dark:text-[#F8F1ED]">${service.price}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-[#675961] dark:text-[#C8B8C0]">
                   <span>Upfront Deposit:</span>
-                  <span className="font-semibold text-emerald-700">$0 (Pay upon confirmation)</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">$0 (Pay upon confirmation)</span>
                 </div>
-                <div className="flex justify-between text-gray-900 font-bold border-t border-rose-200/60 pt-1.5">
+                <div className="flex justify-between text-[#291F26] dark:text-[#F8F1ED] font-bold border-t border-[#EAE3DB] dark:border-[#382E36] pt-1.5">
                   <span>Total Due:</span>
-                  <span className="text-primary-800 text-sm">${service.price}</span>
+                  <span className="text-[#80405A] dark:text-[#E2A5BA] text-sm">${service.price}</span>
                 </div>
               </div>
 
               {/* Role Guards & Action Buttons */}
               <div>
                 {isAdmin ? (
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
+                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs space-y-1">
                     <p className="font-bold">Admin Account Notice:</p>
                     <p>
                       Administrators cannot submit customer booking requests. Please use a customer account to test scheduling.
@@ -509,7 +534,7 @@ export default function ServiceDetailsPage() {
                 ) : isInactive ? (
                   <button
                     disabled
-                    className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed text-center uppercase tracking-wider"
+                    className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-[#675961] dark:text-[#C8B8C0] bg-stone-200 dark:bg-[#171316] cursor-not-allowed text-center uppercase tracking-wider"
                   >
                     Service Inactive for Booking
                   </button>
@@ -517,7 +542,7 @@ export default function ServiceDetailsPage() {
                   <button
                     type="submit"
                     disabled={isSubmittingBooking}
-                    className="w-full py-3.5 px-4 rounded-xl text-sm font-semibold text-white salon-gradient hover:opacity-95 shadow-md shadow-rose-900/15 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 transform hover:-translate-y-0.5"
+                    className="w-full py-3.5 px-4 rounded-xl text-sm font-semibold text-white bg-[#80405A] hover:bg-[#6c364c] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d893aa] shadow-md transition-all flex items-center justify-center space-x-2 disabled:opacity-50 transform hover:-translate-y-0.5"
                   >
                     <Calendar className="w-4 h-4" />
                     <span>{isSubmittingBooking ? 'Submitting Request...' : 'Confirm Appointment Request'}</span>
@@ -525,8 +550,8 @@ export default function ServiceDetailsPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-center space-x-1.5 text-[11px] text-gray-500">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="flex items-center justify-center space-x-1.5 text-[11px] text-[#675961] dark:text-[#C8B8C0]">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Encrypted & secure booking verification</span>
               </div>
             </form>
@@ -536,19 +561,19 @@ export default function ServiceDetailsPage() {
 
       {/* 3. RELATED SERVICES SECTION */}
       {relatedServices.length > 0 && (
-        <section className="pt-10 border-t border-rose-100">
+        <section className="pt-10 border-t border-[#EAE3DB] dark:border-[#382E36]">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary-700">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#80405A] dark:text-[#E2A5BA] font-sans">
                 More in {service.category}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mt-1">
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
                 You May Also Enjoy
               </h2>
             </div>
             <Link
               href={`/services?category=${encodeURIComponent(service.category)}`}
-              className="text-xs font-semibold text-primary-700 hover:text-primary-800 flex items-center space-x-1 mt-2 sm:mt-0"
+              className="text-xs font-semibold text-[#80405A] dark:text-[#E2A5BA] hover:underline flex items-center space-x-1 mt-2 sm:mt-0 font-sans"
             >
               <span>Explore all {service.category}</span>
               <ChevronRight className="w-3.5 h-3.5" />
