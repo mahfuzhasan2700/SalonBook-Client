@@ -29,8 +29,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.push(`/signin?redirect=${pathname}`);
-        return;
+        // Verify localStorage token before redirecting to prevent race conditions on login
+        const storedToken = typeof window !== 'undefined' ? localStorage.getItem('salonbook_token') : null;
+        if (!storedToken) {
+          router.push(`/sign-in?redirect=${pathname}`);
+          return;
+        }
       }
 
       // Role isolation: prevent cross-dashboard URL tampering

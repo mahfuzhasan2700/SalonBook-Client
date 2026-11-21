@@ -2,28 +2,26 @@ const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://salon-book-server
 const cleanBase = rawBaseUrl.replace(/\/+$/, '');
 const API_BASE_URL = cleanBase.endsWith('/api') ? cleanBase : `${cleanBase}/api`;
 
-const getAuthHeaders = (): HeadersInit => {
-  const headers: HeadersInit = {
+export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  
+  // Public auth endpoints must not send old/expired Authorization headers
+  const isAuthRoute =
+    endpoint.startsWith('/auth/login') ||
+    endpoint.startsWith('/auth/register') ||
+    endpoint.startsWith('/auth/google');
+
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...((options.headers as Record<string, string>) || {}),
   };
 
-  if (typeof window !== 'undefined') {
+  if (!isAuthRoute && typeof window !== 'undefined') {
     const token = localStorage.getItem('salonbook_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
   }
-
-  return headers;
-};
-
-export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  
-  const headers = {
-    ...getAuthHeaders(),
-    ...(options.headers || {}),
-  };
 
   try {
     const response = await fetch(url, {

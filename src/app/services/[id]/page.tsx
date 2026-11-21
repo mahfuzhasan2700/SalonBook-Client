@@ -60,7 +60,10 @@ export default function ServiceDetailsPage() {
   // Enforce Authentication on Service Details Page
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push(`/signin?redirect=/services/${id}`);
+      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('salonbook_token') : null;
+      if (!storedToken) {
+        router.push(`/sign-in?redirect=/services/${id}`);
+      }
     }
   }, [user, authLoading, router, id]);
 

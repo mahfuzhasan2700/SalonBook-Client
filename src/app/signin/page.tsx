@@ -1,28 +1,36 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../lib/api';
 import { toast } from 'sonner';
-import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, Scissors } from 'lucide-react';
+import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, Scissors, ShieldCheck, User as UserIcon } from 'lucide-react';
 
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
-  const { login } = useAuth();
+  const { user, login, isLoading: authLoading } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeDemoRole, setActiveDemoRole] = useState<'admin' | 'customer' | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // If already logged in, redirect to the appropriate dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      const dest = user.role === 'admin' ? '/dashboard/admin' : '/dashboard/customer';
+      window.location.href = dest;
+    }
+  }, [user, authLoading]);
 
-    if (!email || !password) {
+  // Core authenticated login handler
+  const performLogin = async (loginEmail: string, loginPass: string) => {
+    if (!loginEmail || !loginPass) {
       toast.error('Please provide both email and password.');
       return;
     }
@@ -32,30 +40,61 @@ function SignInContent() {
     try {
       const res = await apiFetch('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: loginEmail.trim(), password: loginPass }),
       });
 
       if (res.success && res.token && res.user) {
         toast.success(`Welcome back, ${res.user.name}!`);
         login(res.token, res.user);
 
-        if (redirectParam) {
-          router.push(redirectParam);
-        } else if (res.user.role === 'admin') {
-          router.push('/dashboard/admin');
-        } else {
-          router.push('/dashboard/customer');
+        // Determine destination safely avoiding role collisions or self-redirects
+        let targetUrl = res.user.role === 'admin' ? '/dashboard/admin' : '/dashboard/customer';
+        if (
+          redirectParam &&
+          !redirectParam.startsWith('/signin') &&
+          !redirectParam.startsWith('/sign-in')
+        ) {
+          if (res.user.role === 'admin' && !redirectParam.startsWith('/dashboard/customer')) {
+            targetUrl = redirectParam;
+          } else if (res.user.role === 'customer' && !redirectParam.startsWith('/dashboard/admin')) {
+            targetUrl = redirectParam;
+          }
         }
+
+        // Full window navigation ensures clean session synchronization across layouts
+        window.location.href = targetUrl;
         return;
+      } else {
+        toast.error(res.message || 'Login failed.');
       }
     } catch (error: any) {
       toast.error(error.message || 'Invalid email or password.');
     } finally {
       setIsSubmitting(false);
+      setActiveDemoRole(null);
     }
   };
 
-  // Google OAuth Mock / Direct Sign-in
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    performLogin(email, password);
+  };
+
+  // One-click instant login helper for evaluators
+  const handleInstantDemoLogin = (role: 'admin' | 'customer') => {
+    setActiveDemoRole(role);
+    if (role === 'admin') {
+      setEmail('admin@salonbook.com');
+      setPassword('Admin@123456');
+      performLogin('admin@salonbook.com', 'Admin@123456');
+    } else {
+      setEmail('sophia@example.com');
+      setPassword('Customer@123');
+      performLogin('sophia@example.com', 'Customer@123');
+    }
+  };
+
+  // Google OAuth sign in
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
@@ -72,35 +111,13 @@ function SignInContent() {
       if (res.success && res.token && res.user) {
         toast.success('Google sign-in successful!');
         login(res.token, res.user);
-        router.push(redirectParam || '/dashboard/customer');
+        window.location.href = redirectParam || '/dashboard/customer';
         return;
       }
     } catch (err: any) {
-      // Fallback for evaluator testing if network unreachable
-      const googleUser = {
-        _id: 'google_cust_' + Date.now(),
-        name: 'Sarah Connor',
-        email: 'google.customer@example.com',
-        role: 'customer' as const,
-        isBlocked: false,
-        image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-      };
-      toast.success('Google sign-in successful!');
-      login('mock_google_token_' + Date.now(), googleUser);
-      router.push(redirectParam || '/dashboard/customer');
+      toast.error(err.message || 'Google authentication failed.');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // Quick fill credentials helper for evaluator convenience
-  const fillCredentials = (type: 'admin' | 'customer') => {
-    if (type === 'admin') {
-      setEmail('admin@salonbook.com');
-      setPassword('Admin@123456');
-    } else {
-      setEmail('sophia@example.com');
-      setPassword('Customer@123');
     }
   };
 
@@ -120,31 +137,38 @@ function SignInContent() {
           </p>
         </div>
 
-        {/* Demo Account Fill Helper */}
-        <div className="p-3.5 bg-[#FAF7F3] dark:bg-[#171316] rounded-2xl border border-[#EAE3DB] dark:border-[#382E36] text-xs space-y-2.5">
-          <p className="font-semibold text-[#291F26] dark:text-[#F8F1ED] flex items-center space-x-1.5">
+        {/* Instant One-Click Evaluator Login Buttons */}
+        <div className="p-4 bg-[#FAF7F3] dark:bg-[#171316] rounded-2xl border border-[#EAE3DB] dark:border-[#382E36] text-xs space-y-2.5">
+          <p className="font-bold text-[#291F26] dark:text-[#F8F1ED] flex items-center space-x-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#80405A] dark:text-[#E2A5BA]" />
-            <span>One-Click Evaluator Credentials:</span>
+            <span>One-Click Instant Evaluator Logins:</span>
           </p>
-          <div className="flex space-x-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
-              onClick={() => fillCredentials('admin')}
-              className="filter-pill flex-1 py-2 px-2.5 bg-white dark:bg-[#241E23] rounded-xl border border-[#EAE3DB] dark:border-[#382E36] text-[#80405A] dark:text-[#E2A5BA] font-bold text-center hover:shadow-sm"
+              disabled={isSubmitting}
+              onClick={() => handleInstantDemoLogin('admin')}
+              className="py-2.5 px-3 rounded-xl border border-[#80405A]/30 dark:border-[#E2A5BA]/40 bg-white dark:bg-[#241E23] hover:bg-[#80405A]/10 dark:hover:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] font-bold text-center transition-all shadow-sm flex items-center justify-center space-x-1.5 disabled:opacity-50"
             >
-              Fill Admin
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              <span>{activeDemoRole === 'admin' ? 'Logging in...' : 'Sign In Admin'}</span>
             </button>
             <button
               type="button"
-              onClick={() => fillCredentials('customer')}
-              className="filter-pill flex-1 py-2 px-2.5 bg-white dark:bg-[#241E23] rounded-xl border border-[#EAE3DB] dark:border-[#382E36] text-[#291F26] dark:text-[#F8F1ED] font-bold text-center hover:shadow-sm"
+              disabled={isSubmitting}
+              onClick={() => handleInstantDemoLogin('customer')}
+              className="py-2.5 px-3 rounded-xl border border-[#EAE3DB] dark:border-[#382E36] bg-white dark:bg-[#241E23] hover:bg-stone-50 dark:hover:bg-[#1d171b] text-[#291F26] dark:text-[#F8F1ED] font-bold text-center transition-all shadow-sm flex items-center justify-center space-x-1.5 disabled:opacity-50"
             >
-              Fill Customer
+              <UserIcon className="w-4 h-4 shrink-0 text-[#80405A] dark:text-[#E2A5BA]" />
+              <span>{activeDemoRole === 'customer' ? 'Logging in...' : 'Sign In Customer'}</span>
             </button>
           </div>
+          <p className="text-[10px] text-[#675961] dark:text-[#C8B8C0] text-center">
+            Clicking either button will automatically log you in immediately.
+          </p>
         </div>
 
-        {/* Form */}
+        {/* Credentials Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-[#291F26] dark:text-[#F8F1ED] mb-1.5">
@@ -242,7 +266,7 @@ function SignInContent() {
         {/* Footer Link */}
         <p className="text-center text-xs text-[#675961] dark:text-[#C8B8C0]">
           Don't have an account yet?{' '}
-          <Link href="/signup" className="font-semibold text-[#80405A] dark:text-[#E2A5BA] hover:underline">
+          <Link href="/sign-up" className="font-semibold text-[#80405A] dark:text-[#E2A5BA] hover:underline">
             Create an account
           </Link>
         </p>

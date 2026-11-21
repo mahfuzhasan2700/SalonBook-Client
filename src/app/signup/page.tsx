@@ -75,7 +75,7 @@ export default function SignUpPage() {
       if (res.success && res.token && res.user) {
         toast.success('Registration successful! Welcome to SalonBook.');
         login(res.token, res.user);
-        router.push('/dashboard/customer');
+        window.location.href = '/dashboard/customer';
         return;
       }
     } catch (error: any) {
@@ -311,7 +311,7 @@ export default function SignUpPage() {
         {/* Footer Link */}
         <p className="text-center text-xs text-[#675961] dark:text-[#C8B8C0]">
           Already have an account?{' '}
-          <Link href="/signin" className="font-semibold text-[#80405A] dark:text-[#E2A5BA] hover:underline">
+          <Link href="/sign-in" className="font-semibold text-[#80405A] dark:text-[#E2A5BA] hover:underline">
             Sign in
           </Link>
         </p>

@@ -49,7 +49,7 @@ export default function Navbar() {
     logout();
     setDropdownOpen(false);
     setMobileMenuOpen(false);
-    router.push('/');
+    window.location.href = '/';
   };
 
   const dashboardUrl = isAdmin ? '/dashboard/admin' : '/dashboard/customer';
