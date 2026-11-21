@@ -1,4 +1,4 @@
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://salon-book-server-opal.vercel.app/api';
 const cleanBase = rawBaseUrl.replace(/\/+$/, '');
 const API_BASE_URL = cleanBase.endsWith('/api') ? cleanBase : `${cleanBase}/api`;
 
