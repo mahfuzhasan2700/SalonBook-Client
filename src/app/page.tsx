@@ -16,21 +16,22 @@ import {
   Flame,
   ArrowRight,
   ShieldCheck,
-  Star,
+  Calendar,
+  CreditCard,
   Clock,
-  Award,
+  CheckCircle,
 } from 'lucide-react';
 
 const CATEGORIES = [
   {
     name: 'Haircut & Styling',
-    description: 'Precision cuts, executive trims & bouncy signature blowouts.',
+    description: 'Precision cuts, executive trims & signature blowouts.',
     icon: Scissors,
     image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80',
   },
   {
     name: 'Hair Coloring',
-    description: 'Balayage, multidimensional highlights, gloss & root touch-ups.',
+    description: 'Balayage, multidimensional gloss & root touch-ups.',
     icon: Palette,
     image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
   },
@@ -66,83 +67,20 @@ const CATEGORIES = [
   },
 ];
 
-// Fallback services in case API is initially connecting
-const FALLBACK_FEATURED_SERVICES: Service[] = [
-  {
-    _id: '1',
-    serviceName: 'Precision Haircut & Blowout',
-    category: 'Haircut & Styling',
-    description: 'Expert consultation followed by a tailored wash, precision layered cut, and a signature blowout.',
-    price: 65,
-    duration: 50,
-    image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80',
-    status: 'active',
-  },
-  {
-    _id: '2',
-    serviceName: 'Sun-Kissed Balayage & Gloss',
-    category: 'Hair Coloring',
-    description: 'Hand-painted multidimensional highlights paired with an organic toning gloss for brilliant radiance.',
-    price: 180,
-    duration: 120,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
-    status: 'active',
-  },
-  {
-    _id: '3',
-    serviceName: 'Brazilian Keratin Smoothing Therapy',
-    category: 'Hair Treatment',
-    description: 'Transform frizzy, unmanageable curls into sleek, mirror-shine tresses that resist humidity.',
-    price: 210,
-    duration: 110,
-    image: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=800&q=80',
-    status: 'active',
-  },
-  {
-    _id: '4',
-    serviceName: 'Hydra-Luminous Diamond Facial',
-    category: 'Facial & Skincare',
-    description: 'Non-invasive dermabrasion infused with hyaluronic acid, peptides, and antioxidant serum.',
-    price: 135,
-    duration: 60,
-    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80',
-    status: 'active',
-  },
-  {
-    _id: '5',
-    serviceName: 'Bridal Couture Glamour Makeup',
-    category: 'Makeup',
-    description: 'Flawless 16-hour long-wear HD airbrush foundation, dramatic mink lash application and contouring.',
-    price: 160,
-    duration: 90,
-    image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80',
-    status: 'active',
-  },
-  {
-    _id: '6',
-    serviceName: 'Swedish Deep Tissue Aromatherapy',
-    category: 'Spa & Massage',
-    description: 'Therapeutic full-body massage utilizing warmed organic eucalyptus oils to relieve tension.',
-    price: 120,
-    duration: 60,
-    image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80',
-    status: 'active',
-  },
-];
-
 export default function HomePage() {
-  const [featuredServices, setFeaturedServices] = useState<Service[]>(FALLBACK_FEATURED_SERVICES);
+  const [featuredServices, setFeaturedServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const res = await apiFetch('/services?limit=6');
-        if (res.success && res.services && res.services.length > 0) {
-          setFeaturedServices(res.services);
+        if (res.success && res.services) {
+          // Display only active services per requirement
+          setFeaturedServices(res.services.filter((s: Service) => s.status === 'active').slice(0, 6));
         }
       } catch (e) {
-        // Fallback already preloaded
+        // Fallback
       } finally {
         setIsLoading(false);
       }
@@ -152,121 +90,145 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="space-y-24 pb-20">
-      {/* 1. HERO BANNER SECTION */}
-      <section className="relative min-h-[640px] flex items-center justify-center overflow-hidden">
-        {/* Background Image with Dark Vignette */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1920&q=85')`,
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-gray-950/70 to-rose-950/40" />
-        </div>
+    <div className="space-y-28 pb-24">
+      {/* 1. HERO SECTION: 2/5 CONTRASTING PANEL + REAL SALON PHOTOGRAPH + SIGNATURE MOTION GRAPHIC */}
+      <section className="relative overflow-hidden border-b border-[#EAE3DB] dark:border-[#382E36] bg-[#FAF7F3] dark:bg-[#171316]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left 2/5ths contrasting panel */}
+            <div className="lg:col-span-5 z-10 bg-white/90 dark:bg-[#241E23]/90 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-xl space-y-6">
+              <div className="inline-flex items-center space-x-2 bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider font-sans">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Editorial Salon Experience</span>
+              </div>
 
-        {/* Banner Content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center sm:text-left flex flex-col justify-center">
-          <div className="max-w-2xl space-y-6">
-            <div className="inline-flex items-center space-x-2 bg-rose-500/20 border border-rose-300/30 backdrop-blur-md px-4 py-1.5 rounded-full text-rose-200 text-xs font-semibold uppercase tracking-wider shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Premier Salon & Spa Experience</span>
+              {/* Exact required heading */}
+              <h1 className="text-4xl sm:text-5xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] leading-[1.15] tracking-tight">
+                Make time for a little care
+              </h1>
+
+              {/* Short description */}
+              <p className="text-sm sm:text-base text-[#675961] dark:text-[#C8B8C0] leading-relaxed font-sans">
+                An independent editorial studio dedicated to bespoke balayage, precision haircutting, botanical skincare, and rejuvenating therapies crafted for your peace of mind.
+              </p>
+
+              {/* Exact CTA */}
+              <div className="pt-2">
+                <Link
+                  href="/services"
+                  className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 px-8 py-4 rounded-full text-sm font-semibold text-white bg-[#80405A] hover:bg-[#6a3449] dark:bg-[#E2A5BA] dark:text-[#24171D] dark:hover:bg-[#d88ea6] shadow-md transition-all duration-180 transform hover:-translate-y-0.5"
+                >
+                  <span>Explore Salon Services</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Quick trust cues */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#EAE3DB] dark:border-[#382E36] text-xs">
+                <div>
+                  <p className="text-xl font-serif font-bold text-[#80405A] dark:text-[#E2A5BA]">12+</p>
+                  <p className="text-[#675961] dark:text-[#C8B8C0]">Master Stylists</p>
+                </div>
+                <div>
+                  <p className="text-xl font-serif font-bold text-[#80405A] dark:text-[#E2A5BA]">100%</p>
+                  <p className="text-[#675961] dark:text-[#C8B8C0]">Cruelty-Free</p>
+                </div>
+                <div>
+                  <p className="text-xl font-serif font-bold text-[#80405A] dark:text-[#E2A5BA]">Zero</p>
+                  <p className="text-[#675961] dark:text-[#C8B8C0]">Wait Time</p>
+                </div>
+              </div>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white tracking-tight leading-tight">
-              Elevate Your Beauty, <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-rose-200 to-amber-200">
-                Crafted With Perfection.
-              </span>
-            </h1>
+            {/* Right 3/5ths Hero Photograph with Signature Hair Curve Motion Graphic */}
+            <div className="lg:col-span-7 relative">
+              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-[#EAE3DB] dark:border-[#382E36]">
+                <img
+                  src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=85"
+                  alt="Salon stylist creating bespoke hairstyle"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/30 via-transparent to-transparent pointer-events-none" />
 
-            <p className="text-base sm:text-lg text-gray-200 leading-relaxed font-light">
-              Discover master hairstylists, bespoke balayage, skin-rejuvenating facials, and luxury spa treatments. Reserve your personalized appointment in seconds.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
-              <Link
-                href="/services"
-                className="w-full sm:w-auto px-8 py-4 rounded-full text-base font-semibold text-white salon-gradient hover:opacity-95 shadow-xl shadow-rose-950/40 transition-all flex items-center justify-center space-x-2 transform hover:-translate-y-0.5"
-              >
-                <span>Explore Salon Services</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/signup"
-                className="w-full sm:w-auto px-8 py-4 rounded-full text-base font-semibold text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 transition-all text-center"
-              >
-                Join SalonBook
-              </Link>
-            </div>
-
-            {/* Quick stats trust badge */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/15 text-white">
-              <div>
-                <p className="text-2xl font-serif font-bold text-rose-300">100%</p>
-                <p className="text-xs text-gray-300">Verified Stylists</p>
-              </div>
-              <div>
-                <p className="text-2xl font-serif font-bold text-rose-300">12k+</p>
-                <p className="text-xs text-gray-300">Happy Clients</p>
-              </div>
-              <div>
-                <p className="text-2xl font-serif font-bold text-rose-300">4.9 ★</p>
-                <p className="text-xs text-gray-300">Average Rating</p>
+                {/* SIGNATURE MOTION GRAPHIC: Two animated SVG curves that follow a lock of hair (~900ms stroke animation) */}
+                <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  viewBox="0 0 800 600"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  {/* Hair Strand Curve 1 */}
+                  <path
+                    d="M 520,30 C 590,160 540,290 620,440 C 660,510 710,560 740,590"
+                    stroke="#E2A5BA"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    className="hair-strand-curve-1 opacity-90"
+                  />
+                  {/* Hair Strand Curve 2 */}
+                  <path
+                    d="M 545,40 C 615,170 565,300 645,450 C 685,520 730,570 760,595"
+                    stroke="#FAF7F3"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray="4 6"
+                    className="hair-strand-curve-2 opacity-80"
+                  />
+                </svg>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. DYNAMIC SECTION 1: FEATURED SALON SERVICES */}
+      {/* 2. FEATURED SALON SERVICES SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12">
           <div>
-            <div className="flex items-center space-x-2 text-primary-700 text-xs font-bold uppercase tracking-widest mb-2">
-              <Sparkles className="w-4 h-4" />
-              <span>Handpicked Perfection</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 tracking-tight">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#80405A] dark:text-[#E2A5BA]">
+              Handcrafted Rituals
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
               Featured Salon Services
             </h2>
-            <p className="text-sm text-gray-600 mt-2 max-w-xl">
-              Our most sought-after salon rituals, performed by industry-certified artists using premium organic formulations.
+            <p className="text-sm text-[#675961] dark:text-[#C8B8C0] mt-2 max-w-xl">
+              Explore our most requested salon treatments, meticulously delivered by senior artists using organic formulations.
             </p>
           </div>
 
           <Link
             href="/services"
-            className="mt-4 md:mt-0 inline-flex items-center space-x-2 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group"
+            className="mt-4 sm:mt-0 inline-flex items-center space-x-2 text-sm font-semibold text-[#80405A] dark:text-[#E2A5BA] hover:underline"
           >
-            <span>View All Services</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <span>Browse Full Menu</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
         {isLoading ? (
           <LoadingSpinner message="Curating featured services..." />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredServices.slice(0, 6).map((service) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredServices.map((service) => (
               <ServiceCard key={service._id} service={service} />
             ))}
           </div>
         )}
       </section>
 
-      {/* 3. DYNAMIC SECTION 2: SALON SERVICE CATEGORIES */}
-      <section className="bg-rose-50/50 py-20 border-y border-rose-100/60">
+      {/* 3. SALON SERVICE CATEGORIES SECTION */}
+      <section className="bg-white/60 dark:bg-[#241E23]/60 py-20 border-y border-[#EAE3DB] dark:border-[#382E36] transition-colors duration-180">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-primary-700">
-              Personalized Treatments
+            <span className="text-xs font-bold uppercase tracking-widest text-[#80405A] dark:text-[#E2A5BA]">
+              Departments of Excellence
             </span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 tracking-tight mt-2">
-              Explore By Category
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
+              Salon Service Categories
             </h2>
-            <p className="text-sm text-gray-600 mt-3">
-              Select your desired category to explore curated treatments tailored to your unique hair texture, skin tone, and relaxation goals.
+            <p className="text-sm text-[#675961] dark:text-[#C8B8C0] mt-2">
+              Browse tailored collections designed for haircutting, vibrant coloration, holistic skincare, and body wellness.
             </p>
           </div>
 
@@ -277,29 +239,29 @@ export default function HomePage() {
                 <Link
                   key={cat.name}
                   href={`/services?category=${encodeURIComponent(cat.name)}`}
-                  className="group relative bg-white rounded-2xl overflow-hidden border border-rose-100 shadow-sm hover:shadow-xl hover:border-primary-300 transition-all duration-300 flex flex-col justify-between"
+                  className="category-card group bg-white dark:bg-[#171316] rounded-3xl overflow-hidden border border-[#EAE3DB] dark:border-[#382E36] shadow-sm hover:shadow-xl hover:border-[#80405A]/40 dark:hover:border-[#E2A5BA]/40 transition-all duration-200 flex flex-col justify-between"
                 >
-                  <div className="aspect-[4/3] overflow-hidden relative">
+                  <div className="aspect-[4/3] overflow-hidden relative bg-stone-100 dark:bg-stone-900">
                     <img
                       src={cat.image}
                       alt={cat.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                    <div className="absolute bottom-3 left-3 text-white">
-                      <div className="w-8 h-8 rounded-full bg-primary-700/80 backdrop-blur-md flex items-center justify-center mb-1.5 shadow-sm">
-                        <Icon className="w-4 h-4 text-white" />
+                    <div className="absolute bottom-3.5 left-3.5 text-white flex items-center space-x-2">
+                      <div className="category-icon-hover w-8 h-8 rounded-full bg-[#80405A]/85 dark:bg-[#E2A5BA]/90 text-white dark:text-[#24171D] flex items-center justify-center shadow-sm">
+                        <Icon className="w-4 h-4" />
                       </div>
                       <h3 className="font-serif font-bold text-lg leading-snug">{cat.name}</h3>
                     </div>
                   </div>
 
                   <div className="p-4 flex-1 flex flex-col justify-between">
-                    <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[#675961] dark:text-[#C8B8C0] line-clamp-2 leading-relaxed">
                       {cat.description}
                     </p>
-                    <div className="mt-3 text-xs font-semibold text-primary-700 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
-                      <span>Browse category</span>
+                    <div className="mt-3 text-xs font-semibold text-[#80405A] dark:text-[#E2A5BA] flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                      <span>Explore rituals</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
@@ -310,75 +272,67 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. EXTRA SECTION: WHY CHOOSE SALONBOOK & TESTIMONIALS */}
+      {/* 4. EXACT REQUIRED EXTRA SECTION: HOW BOOKING WORKS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary-700">
-            The SalonBook Promise
+          <span className="text-xs font-bold uppercase tracking-widest text-[#80405A] dark:text-[#E2A5BA]">
+            Transparent & Simple
           </span>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 tracking-tight mt-2">
-            Why Our Clients Trust Us
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mt-1">
+            How booking works
           </h2>
-          <p className="text-sm text-gray-600 mt-3">
-            We hold ourselves to hospital-grade sanitation, world-class stylists, and seamless digital booking.
+          <p className="text-sm text-[#675961] dark:text-[#C8B8C0] mt-2">
+            Enjoy zero-risk appointment scheduling with salon confirmation before any payment is collected.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          <div className="bg-white p-8 rounded-2xl border border-rose-100 shadow-sm text-center">
-            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-primary-700 flex items-center justify-center mx-auto mb-5 ring-8 ring-rose-50/50">
-              <Award className="w-7 h-7" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Step 1: Request Appointment */}
+          <div className="bg-white dark:bg-[#241E23] p-8 rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm relative">
+            <span className="text-5xl font-serif font-bold text-[#80405A]/15 dark:text-[#E2A5BA]/15 absolute top-6 right-6">
+              01
+            </span>
+            <div className="w-12 h-12 rounded-2xl bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center mb-6">
+              <Calendar className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-serif font-bold text-gray-900 mb-2">
-              Award-Winning Stylists
+            <h3 className="text-xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mb-2">
+              1. Request Appointment
             </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Every artist on our roster has at least 5 years of certified salon experience and continuous training in global trendsetting techniques.
+            <p className="text-xs text-[#675961] dark:text-[#C8B8C0] leading-relaxed">
+              Select your service, choose an available date and preferred time slot, and add any styling preferences. No upfront payment is required.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl border border-rose-100 shadow-sm text-center">
-            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-primary-700 flex items-center justify-center mx-auto mb-5 ring-8 ring-rose-50/50">
-              <ShieldCheck className="w-7 h-7" />
+          {/* Step 2: Salon Confirmation */}
+          <div className="bg-white dark:bg-[#241E23] p-8 rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm relative">
+            <span className="text-5xl font-serif font-bold text-[#80405A]/15 dark:text-[#E2A5BA]/15 absolute top-6 right-6">
+              02
+            </span>
+            <div className="w-12 h-12 rounded-2xl bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center mb-6">
+              <Clock className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-serif font-bold text-gray-900 mb-2">
-              Organic & Cruelty-Free
+            <h3 className="text-xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mb-2">
+              2. Salon Confirmation
             </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              We exclusively use ammonia-free dyes, sulfate-free shampoos, and dermatologist-tested organic skincare for ultimate wellness.
+            <p className="text-xs text-[#675961] dark:text-[#C8B8C0] leading-relaxed">
+              Our salon manager reviews your booking and confirms your stylist's chair. You can monitor the real-time status right from your dashboard.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl border border-rose-100 shadow-sm text-center">
-            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-primary-700 flex items-center justify-center mx-auto mb-5 ring-8 ring-rose-50/50">
-              <Clock className="w-7 h-7" />
+          {/* Step 3: Verified Stripe Payment */}
+          <div className="bg-white dark:bg-[#241E23] p-8 rounded-3xl border border-[#EAE3DB] dark:border-[#382E36] shadow-sm relative">
+            <span className="text-5xl font-serif font-bold text-[#80405A]/15 dark:text-[#E2A5BA]/15 absolute top-6 right-6">
+              03
+            </span>
+            <div className="w-12 h-12 rounded-2xl bg-[#80405A]/10 dark:bg-[#E2A5BA]/15 text-[#80405A] dark:text-[#E2A5BA] flex items-center justify-center mb-6">
+              <CreditCard className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-serif font-bold text-gray-900 mb-2">
-              Guaranteed Zero-Wait Booking
+            <h3 className="text-xl font-serif font-bold text-[#291F26] dark:text-[#F8F1ED] mb-2">
+              3. Stripe Payment
             </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Our intelligent time-slot algorithm ensures your chair is ready the instant you arrive. No lines, no delays, pure relaxation.
+            <p className="text-xs text-[#675961] dark:text-[#C8B8C0] leading-relaxed">
+              Once confirmed, click <strong>Pay Now</strong> in your appointments to complete checkout safely with Stripe. A verified webhook locks in your receipt.
             </p>
-          </div>
-        </div>
-
-        {/* Client Testimonial Cards */}
-        <div className="bg-gradient-to-br from-rose-900 to-rose-950 text-white rounded-3xl p-8 sm:p-14 shadow-2xl relative overflow-hidden">
-          <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-            <div className="flex justify-center space-x-1 text-amber-300">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-current" />
-              ))}
-            </div>
-            <blockquote className="text-xl sm:text-2xl font-serif italic text-rose-100 leading-relaxed">
-              "SalonBook completely changed how I plan my salon visits. The balayage session was pure artistry, the ambiance was serene, and being able to book and pay effortlessly online made it a 10/10 experience!"
-            </blockquote>
-            <div>
-              <p className="text-base font-bold text-white">Charlotte Montgomery</p>
-              <p className="text-xs text-rose-300 uppercase tracking-widest mt-0.5">
-                Verified SalonBook Client • Manhattan, NY
-              </p>
-            </div>
           </div>
         </div>
       </section>
